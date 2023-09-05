@@ -25,11 +25,9 @@ class TrapWebsocketTransport: TrapTransport {
     }
 
     func send(data: String, completionHandler: @escaping (Error?) -> Void) {
-        Task {
-            let message = URLSessionWebSocketTask.Message.string(data)
+        let message = URLSessionWebSocketTask.Message.string(data)
 
-            websocketTask?.send(message, completionHandler: completionHandler)
-        }
+        websocketTask?.send(message, completionHandler: completionHandler)
     }
 
     deinit {
