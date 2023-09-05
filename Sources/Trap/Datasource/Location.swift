@@ -18,8 +18,8 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
             locationManager.desiredAccuracy = kCLLocationAccuracyReduced
         }
 #else
-        if #unavailable(iOS 14.0, *) {
-            locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        if #available(iOS 14.0, *) {} else {
+            self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
         }
 #endif
     }
@@ -58,7 +58,7 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
             }
         }
 #else
-        if #unavailable(iOS 14) {
+        if #available(iOS 14.0, *) {} else {
             switch CLLocationManager.authorizationStatus() {
             case .restricted, .denied, .notDetermined:
                 return false

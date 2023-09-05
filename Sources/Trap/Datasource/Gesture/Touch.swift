@@ -70,7 +70,7 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
 
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         touches.forEach { coalescedTouch in
-            let fingerIndex = {
+            let fingerIndex: Int = {
                 if let idx = fingers.firstIndex(of: nil) {
                     fingers[idx] = coalescedTouch
                     return Int(idx)

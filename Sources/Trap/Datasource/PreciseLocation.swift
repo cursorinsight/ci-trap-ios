@@ -49,7 +49,7 @@ public class TrapPreciseLocationCollector: NSObject, TrapDatasource {
             }
         }
 #else
-        if #unavailable(iOS 14) {
+        if #available(iOS 14,*) {} else {
             switch CLLocationManager.authorizationStatus() {
             case .restricted, .denied, .notDetermined:
                 return false

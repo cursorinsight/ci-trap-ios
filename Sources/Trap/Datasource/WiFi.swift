@@ -43,12 +43,15 @@ public class TrapWiFiCollector: TrapDatasource {
 
     public func checkPermission() -> Bool {
         // https://developer.apple.com/documentation/systemconfiguration/1614126-cncopycurrentnetworkinfo
+#if compiler(>=5.4.2)
         if #available(iOS 14.0, *) {
             if NEDNSSettingsManager.shared().isEnabled {
                 return true
             }
         }
+#endif
 
+#if compiler(>=5.4.2)
         if #available(iOS 14, *) {
             switch locationManager.authorizationStatus {
             case .restricted, .denied, .notDetermined:
@@ -58,7 +61,9 @@ public class TrapWiFiCollector: TrapDatasource {
             @unknown default:
                 break
             }
-        } else {
+        }
+#else
+        if #available(iOS 14, *) {} else {
             switch CLLocationManager.authorizationStatus() {
             case .restricted, .denied, .notDetermined:
                 return false
@@ -68,6 +73,7 @@ public class TrapWiFiCollector: TrapDatasource {
                 break
             }
         }
+#endif
 
         return false
     }
@@ -135,7 +141,7 @@ public class TrapWiFiCollector: TrapDatasource {
             }
         }
 
-        if #unavailable(iOS 14.0) {
+        if #available(iOS 14.0, *) {} else {
             if let interfaces = CNCopySupportedInterfaces() as NSArray? {
                 for interface in interfaces {
                     if let interfaceInfo = CNCopyCurrentNetworkInfo(interface as! CFString) as NSDictionary? {

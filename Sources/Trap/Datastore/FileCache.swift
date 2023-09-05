@@ -71,18 +71,25 @@ internal class TrapFileCache {
     }
 
     private func urlToPath(url: URL) -> String {
-        
+#if compiler(>=5.4.2)
         if #available(iOS 16.0, *) {
             return url.path()
         } else {
+            return ""
+        }
+#else
+        if #available(iOS 16.0, *) {
+            return ""
+        } else {
             return url.path
         }
+#endif
     }
 
     /// Return all files in the cache.
     private func files() throws -> [(String, UInt64, Date)] {
         let contents = try FileManager.default.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil)
-        var targets = try contents.map {
+        var targets = try contents.map<(String, UInt64, Date)> {
             let file = urlToPath(url: $0)
             let attr = try FileManager.default.attributesOfItem(atPath: file)
             let date = attr[FileAttributeKey.creationDate] as? Date ?? Date()
