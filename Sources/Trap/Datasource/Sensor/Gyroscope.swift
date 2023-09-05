@@ -50,9 +50,9 @@ public class TrapGyroscopeCollector: TrapDatasource {
             this.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(gyroscopeEventType), // Event type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(rotationRate.x), // X direction
-                DataType.double(rotationRate.y), // Y direction
-                DataType.double(rotationRate.z) // Z direction
+                DataType.double(Double(rotationRate.x)), // X direction
+                DataType.double(Double(rotationRate.y)), // Y direction
+                DataType.double(Double(rotationRate.z)) // Z direction
             ]))
         }
     }

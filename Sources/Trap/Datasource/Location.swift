@@ -115,10 +115,10 @@ extension TrapLocationCollector: CLLocationManagerDelegate {
             delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(locationEventType),
                 DataType.int64(timestamp),
-                DataType.double(coords.latitude),
-                DataType.double(coords.longitude),
-                DataType.double(location.altitude),
-                DataType.double(location.horizontalAccuracy)
+                DataType.double(Double(coords.latitude)),
+                DataType.double(Double(coords.longitude)),
+                DataType.double(Double(location.altitude)),
+                DataType.double(Double(location.horizontalAccuracy))
             ]))
         }
     }
@@ -129,10 +129,10 @@ extension TrapLocationCollector: CLLocationManagerDelegate {
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(locationEventType),
             DataType.int64(timestamp),
-            DataType.double(coords.latitude),
-            DataType.double(coords.longitude),
-            DataType.double(location.altitude),
-            DataType.double(location.horizontalAccuracy)
+            DataType.double(Double(coords.latitude)),
+            DataType.double(Double(coords.longitude)),
+            DataType.double(Double(location.altitude)),
+            DataType.double(Double(location.horizontalAccuracy))
         ]))
     }
 

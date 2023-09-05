@@ -24,8 +24,8 @@ public final class TrapTapCollector: TrapGestureCollector, TrapDatasource {
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(tapEventType),
             DataType.int64(timestamp),
-            DataType.double(point.x),
-            DataType.double(point.y)
+            DataType.double(Double(point.x)),
+            DataType.double(Double(point.y))
         ]))
     }
 }

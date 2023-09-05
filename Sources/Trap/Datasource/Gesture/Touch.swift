@@ -58,10 +58,10 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
             DataType.int(touchStartEventType), // Event Type
             DataType.int64(timestamp), // Timestamp
             DataType.int(fingerIndex), // Finger identifier
-            DataType.double(loc.x), // X position
-            DataType.double(loc.y), // Y position
-            DataType.double(touch.force), // Force of touch
-            DataType.double(touch.majorRadius) // Major radius
+            DataType.double(Double(loc.x)), // X position
+            DataType.double(Double(loc.y)), // Y position
+            DataType.double(Double(touch.force)), // Force of touch
+            DataType.double(Double(touch.majorRadius)) // Major radius
 
         ]))
     }
@@ -98,10 +98,10 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
             DataType.int(touchMoveEventType), // Event Type
             DataType.int64(timestamp), // Timestamp
             DataType.int(fingerIndex), // Finger identifier
-            DataType.double(loc.x), // X position
-            DataType.double(loc.y), // Y position
-            DataType.double(touch.force), // Force of touch
-            DataType.double(touch.majorRadius) // Major radius
+            DataType.double(Double(loc.x)), // X position
+            DataType.double(Double(loc.y)), // Y position
+            DataType.double(Double(touch.force)), // Force of touch
+            DataType.double(Double(touch.majorRadius)) // Major radius
         ]))
     }
 
@@ -131,10 +131,10 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
             DataType.int(touchStopEventType), // Event Type
             DataType.int64(timestamp), // Timestamp
             DataType.int(fingerIndex), // Finger identifier
-            DataType.double(loc.x), // X position
-            DataType.double(loc.y), // Y position
-            DataType.double(touch.force), // Force of touch
-            DataType.double(touch.majorRadius) // Major radius
+            DataType.double(Double(loc.x)), // X position
+            DataType.double(Double(loc.y)), // Y position
+            DataType.double(Double(touch.force)), // Force of touch
+            DataType.double(Double(touch.majorRadius)) // Major radius
         ]))
     }
 
@@ -164,10 +164,10 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
             DataType.int(touchStopEventType), // Event Type
             DataType.int64(timestamp), // Timestamp
             DataType.int(fingerIndex), // Finger identifier
-            DataType.double(loc.x), // X position
-            DataType.double(loc.y), // Y position
-            DataType.double(touch.force), // Force of touch
-            DataType.double(touch.majorRadius) // Major radius
+            DataType.double(Double(loc.x)), // X position
+            DataType.double(Double(loc.y)), // Y position
+            DataType.double(Double(touch.force)), // Force of touch
+            DataType.double(Double(touch.majorRadius)) // Major radius
         ]))
     }
 

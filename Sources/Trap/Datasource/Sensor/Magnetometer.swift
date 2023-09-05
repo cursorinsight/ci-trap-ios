@@ -50,9 +50,9 @@ public class TrapMagnetometerCollector: TrapDatasource {
             this.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(magneticEventType), // Event type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(magneticField.x), // X direction
-                DataType.double(magneticField.y), // Y direction
-                DataType.double(magneticField.z) // Z direction
+                DataType.double(Double(magneticField.x)), // X direction
+                DataType.double(Double(magneticField.y)), // Y direction
+                DataType.double(Double(magneticField.z)) // Z direction
             ]))
         }
     }
