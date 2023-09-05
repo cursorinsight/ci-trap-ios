@@ -101,6 +101,7 @@ public class TrapWiFiCollector: TrapDatasource {
         var ssid: String?
         var bssid: String?
 
+#if compiler(>=5.4.2)
         if #available(iOS 14.0, *) {
             NEHotspotNetwork.fetchCurrent(completionHandler: { [weak self] currentNetwork in
                 guard let self = self else {
@@ -140,7 +141,7 @@ public class TrapWiFiCollector: TrapDatasource {
                 }
             }
         }
-
+#else
         if #available(iOS 14.0, *) {} else {
             if let interfaces = CNCopySupportedInterfaces() as NSArray? {
                 for interface in interfaces {
@@ -161,6 +162,7 @@ public class TrapWiFiCollector: TrapDatasource {
                 }
             }
         }
+#endif
     }
 }
 

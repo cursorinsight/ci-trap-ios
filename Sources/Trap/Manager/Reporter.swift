@@ -70,7 +70,7 @@ class TrapReporter {
                 return nil
             }
         }()
-        guard let connection else {
+        guard let connection = connection else {
             throw TransportSchemeError()
         }
         if config.reporter.cachedTransport {
@@ -101,7 +101,7 @@ class TrapReporter {
                 .map { String(data: $0, encoding: .utf8)! }
                 .joined(separator: ",\n")
 
-            guard let json else { return }
+            guard let json = json else { return }
 
             let packet = [
                 String(data: try! encoder.encode(this.getHeader()), encoding: .utf8)!,

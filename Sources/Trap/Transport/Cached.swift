@@ -25,7 +25,7 @@ class TrapCachedTransport: TrapTransport {
         underlying.stop()
     }
 
-    func send(data: String, completionHandler handler: @escaping @Sendable (Error?) -> Void) {
+    func send(data: String, completionHandler handler: @escaping (Error?) -> Void) {
         do {
             let cached = try cache?.getAll() ?? []
             if !cached.isEmpty {
@@ -33,7 +33,7 @@ class TrapCachedTransport: TrapTransport {
                     let content = try $0.content()
                     let startIndex = content.index(content.startIndex, offsetBy: 1)
                     let endIndex = content.index(content.endIndex, offsetBy: -2)
-                    return content[startIndex..<endIndex]
+                    return String(content[startIndex..<endIndex])
                 }.joined(separator: ",")
                 underlying.send(data: "["+message+"]") { error in
                     if error != nil {

@@ -12,16 +12,14 @@ class TrapHttpTransport: TrapTransport {
 
     func stop() {}
 
-    func send(data: String, completionHandler: @escaping @Sendable (Error?) -> Void) {
-        Task {
-            var request = URLRequest(url: self.url)
-            request.httpMethod = "POST"
-            request.setValue("text/plain; encoding=json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = data.data(using: .utf8)
+    func send(data: String, completionHandler: @escaping (Error?) -> Void) {
+        var request = URLRequest(url: self.url)
+        request.httpMethod = "POST"
+        request.setValue("text/plain; encoding=json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = data.data(using: .utf8)
 
-            URLSession.shared.dataTask(with: request) { _, _, error in
-                completionHandler(error)
-            }.resume()
-        }
+        URLSession.shared.dataTask(with: request) { _, _, error in
+            completionHandler(error)
+        }.resume()
     }
 }

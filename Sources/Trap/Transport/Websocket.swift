@@ -24,7 +24,7 @@ class TrapWebsocketTransport: TrapTransport {
         websocketTask = nil
     }
 
-    func send(data: String, completionHandler: @escaping @Sendable (Error?) -> Void) {
+    func send(data: String, completionHandler: @escaping (Error?) -> Void) {
         Task {
             let message = URLSessionWebSocketTask.Message.string(data)
 
@@ -124,7 +124,7 @@ class TrapWSKeepaliveForegroundTransport: TrapWebsocketForegroundOnlyTransport {
         super.stop()
     }
 
-    override func send(data: String, completionHandler: @escaping @Sendable (Error?) -> Void) {
+    override func send(data: String, completionHandler: @escaping (Error?) -> Void) {
         latestSend = Date()
         super.send(data: data) { error in
             if error != nil {

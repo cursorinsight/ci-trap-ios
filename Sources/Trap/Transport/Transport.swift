@@ -14,5 +14,5 @@ protocol TrapTransport {
     func stop()
 
     /// Send data packet via this transport mechanism.
-    func send(data: String, completionHandler: @escaping @Sendable (Error?) -> Void)
+    func send(data: String, completionHandler: @escaping (Error?) -> Void)
 }

@@ -89,7 +89,7 @@ internal class TrapFileCache {
     /// Return all files in the cache.
     private func files() throws -> [(String, UInt64, Date)] {
         let contents = try FileManager.default.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil)
-        var targets = try contents.map<(String, UInt64, Date)> {
+        var targets = try contents.map {
             let file = urlToPath(url: $0)
             let attr = try FileManager.default.attributesOfItem(atPath: file)
             let date = attr[FileAttributeKey.creationDate] as? Date ?? Date()
