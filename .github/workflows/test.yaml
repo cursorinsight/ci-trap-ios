@@ -38,8 +38,6 @@ jobs:
           destination: ${{ matrix.destination }}
           sdk: ${{ matrix.sdk }}
   test-ios16:
-  # iOS 13.7 is the oldest we can go, but that is only available on the macOS 11 runner image
-  # https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md
     name: Test iOS16
     runs-on: macOS-13
     steps:

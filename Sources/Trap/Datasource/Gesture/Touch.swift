@@ -46,11 +46,13 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     // MARK: Touches began
 
     private func _touchesBegan(_ touch: UITouch, _ fingerIndex: Int) {
+#if compiler(>=5.4.2)
         if #available(iOS 13.4, *) {
             if touch.type != .direct {
                 return
             }
         }
+#endif
 
         let loc = touch.location(in: nil)
         let timestamp = TrapTime.normalizeTime(touch.timestamp)
@@ -71,7 +73,7 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
             let fingerIndex = {
                 if let idx = fingers.firstIndex(of: nil) {
                     fingers[idx] = coalescedTouch
-                    return idx
+                    return Int(idx)
                 } else {
                     fingers.append(coalescedTouch)
                     return fingers.count
@@ -86,11 +88,13 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     // MARK: Touches in progress
 
     private func _touchesMoved(_ touch: UITouch, _ fingerIndex: Int) {
+#if compiler(>=5.4.2)
         if #available(iOS 13.4, *) {
             if touch.type != .direct {
                 return
             }
         }
+#endif
 
         let loc = touch.location(in: nil)
         let timestamp = TrapTime.normalizeTime(touch.timestamp)
@@ -119,11 +123,13 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     // MARK: Touches ended or cancelled
 
     private func _touchesEnded(_ touch: UITouch, _ fingerIndex: Int) {
+#if compiler(>=5.4.2)
         if #available(iOS 13.4, *) {
             if touch.type != .direct {
                 return
             }
         }
+#endif
 
         let loc = touch.location(in: nil)
         let timestamp = TrapTime.normalizeTime(touch.timestamp)
@@ -152,11 +158,13 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     }
 
     private func _touchesCancelled(_ touch: UITouch, _ fingerIndex: Int) {
+#if compiler(>=5.4.2)
         if #available(iOS 13.4, *) {
             if touch.type != .direct {
                 return
             }
         }
+#endif        
 
         let loc = touch.location(in: nil)
         let timestamp = TrapTime.normalizeTime(touch.timestamp)

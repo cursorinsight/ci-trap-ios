@@ -71,6 +71,7 @@ internal class TrapFileCache {
     }
 
     private func urlToPath(url: URL) -> String {
+        
         if #available(iOS 16.0, *) {
             return url.path()
         } else {

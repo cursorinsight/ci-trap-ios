@@ -97,7 +97,7 @@ public class TrapWiFiCollector: TrapDatasource {
 
         if #available(iOS 14.0, *) {
             NEHotspotNetwork.fetchCurrent(completionHandler: { [weak self] currentNetwork in
-                guard let self else {
+                guard let self = self else {
                     assertionFailure("Accelerometer collector empty on update")
                     return
                 }
@@ -133,7 +133,9 @@ public class TrapWiFiCollector: TrapDatasource {
                     }
                 }
             }
-        } else {
+        }
+
+        if #unavailable(iOS 14.0) {
             if let interfaces = CNCopySupportedInterfaces() as NSArray? {
                 for interface in interfaces {
                     if let interfaceInfo = CNCopyCurrentNetworkInfo(interface as! CFString) as NSDictionary? {
