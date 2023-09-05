@@ -50,9 +50,9 @@ public class TrapGravityCollector: TrapDatasource {
             this.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(gravityEventType), // Event type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(gravity.x), // X direction
-                DataType.double(gravity.y), // Y direction
-                DataType.double(gravity.z) // Z direction
+                DataType.double(Double(gravity.x)), // X direction
+                DataType.double(Double(gravity.y)), // Y direction
+                DataType.double(Double(gravity.z)) // Z direction
             ]))
         }
     }

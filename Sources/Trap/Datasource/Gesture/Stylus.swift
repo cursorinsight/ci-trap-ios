@@ -41,11 +41,11 @@ private class StylusGestureRecognizer: UIGestureRecognizer {
             self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(stylusDownEventType), // Event Type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(loc.x), // X position
-                DataType.double(loc.y), // Y position
-                DataType.double(touch.force), // Force
-                DataType.double(touch.altitudeAngle), // Altitude angle
-                DataType.double(touch.azimuthAngle(in: touch.view)) // Azimuth angle
+                DataType.double(Double(loc.x)), // X position
+                DataType.double(Double(loc.y)), // Y position
+                DataType.double(Double(touch.force)), // Force
+                DataType.double(Double(touch.altitudeAngle)), // Altitude angle
+                DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
             ]))
         }
     }
@@ -63,11 +63,11 @@ private class StylusGestureRecognizer: UIGestureRecognizer {
                 self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
                     DataType.int(stylusMoveEventType), // Event Type
                     DataType.int64(timestamp), // Timestamp
-                    DataType.double(loc.x), // X position
-                    DataType.double(loc.y), // Y position
-                    DataType.double(touch.force), // Force
-                    DataType.double(touch.altitudeAngle), // Altitude angle
-                    DataType.double(touch.azimuthAngle(in: touch.view)) // Azimuth angle
+                    DataType.double(Double(loc.x)), // X position
+                    DataType.double(Double(loc.y)), // Y position
+                    DataType.double(Double(touch.force)), // Force
+                    DataType.double(Double(touch.altitudeAngle)), // Altitude angle
+                    DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
                 ]))
             }
         }
@@ -84,11 +84,11 @@ private class StylusGestureRecognizer: UIGestureRecognizer {
             self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(stylusUpEventType), // Event Type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(loc.x), // X position
-                DataType.double(loc.y), // Y position
-                DataType.double(touch.force), // Force
-                DataType.double(touch.altitudeAngle), // Altitude angle
-                DataType.double(touch.azimuthAngle(in: touch.view)) // Azimuth angle
+                DataType.double(Double(loc.x)), // X position
+                DataType.double(Double(loc.y)), // Y position
+                DataType.double(Double(touch.force)), // Force
+                DataType.double(Double(touch.altitudeAngle)), // Altitude angle
+                DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
             ]))
         }
     }
@@ -104,11 +104,11 @@ private class StylusGestureRecognizer: UIGestureRecognizer {
             self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(stylusUpEventType), // Event Type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(loc.x), // X position
-                DataType.double(loc.y), // Y position
-                DataType.double(touch.force), // Force
-                DataType.double(touch.altitudeAngle), // Altitude angle
-                DataType.double(touch.azimuthAngle(in: touch.view)) // Azimuth angle
+                DataType.double(Double(loc.x)), // X position
+                DataType.double(Double(loc.y)), // Y position
+                DataType.double(Double(touch.force)), // Force
+                DataType.double(Double(touch.altitudeAngle)), // Altitude angle
+                DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
             ]))
         }
     }

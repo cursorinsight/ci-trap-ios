@@ -13,11 +13,15 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
     public init(withConfig _: Config? = nil) {
         locationManager = CLLocationManager()
 
+#if compiler(>=5.4.2)
         if #available(iOS 14.0, *) {
             locationManager.desiredAccuracy = kCLLocationAccuracyReduced
-        } else {
-            locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
         }
+#else
+        if #available(iOS 14.0, *) {} else {
+            self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        }
+#endif
     }
 
     public func checkConfiguration() -> Bool {
@@ -42,6 +46,7 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
     }
 
     public func checkPermission() -> Bool {
+#if compiler(>=5.4.2)
         if #available(iOS 14, *) {
             switch locationManager.authorizationStatus {
             case .restricted, .denied, .notDetermined:
@@ -51,7 +56,9 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
             @unknown default:
                 break
             }
-        } else {
+        }
+#else
+        if #available(iOS 14.0, *) {} else {
             switch CLLocationManager.authorizationStatus() {
             case .restricted, .denied, .notDetermined:
                 return false
@@ -61,7 +68,8 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
                 break
             }
         }
-
+#endif
+        
         return false
     }
 
@@ -115,10 +123,10 @@ extension TrapLocationCollector: CLLocationManagerDelegate {
             delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(locationEventType),
                 DataType.int64(timestamp),
-                DataType.double(coords.latitude),
-                DataType.double(coords.longitude),
-                DataType.double(location.altitude),
-                DataType.double(location.horizontalAccuracy)
+                DataType.double(Double(coords.latitude)),
+                DataType.double(Double(coords.longitude)),
+                DataType.double(Double(location.altitude)),
+                DataType.double(Double(location.horizontalAccuracy))
             ]))
         }
     }
@@ -129,10 +137,10 @@ extension TrapLocationCollector: CLLocationManagerDelegate {
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(locationEventType),
             DataType.int64(timestamp),
-            DataType.double(coords.latitude),
-            DataType.double(coords.longitude),
-            DataType.double(location.altitude),
-            DataType.double(location.horizontalAccuracy)
+            DataType.double(Double(coords.latitude)),
+            DataType.double(Double(coords.longitude)),
+            DataType.double(Double(location.altitude)),
+            DataType.double(Double(location.horizontalAccuracy))
         ]))
     }
 

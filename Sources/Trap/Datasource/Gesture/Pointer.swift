@@ -32,8 +32,8 @@ public final class TrapPointerCollector: TrapGestureCollector, TrapDatasource {
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(mouseMoveEventType), // Event Type
             DataType.int64(timestamp), // Timestamp
-            DataType.double(loc.x), // X position
-            DataType.double(loc.y), // Y position
+            DataType.double(Double(loc.x)), // X position
+            DataType.double(Double(loc.y)), // Y position
             DataType.int(0)
         ]))
     }
@@ -71,8 +71,8 @@ private class PointerClickRecognizer: UIGestureRecognizer {
             self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(mouseDownEventType), // Event Type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(loc.x), // X position
-                DataType.double(loc.y), // Y position
+                DataType.double(Double(loc.x)), // X position
+                DataType.double(Double(loc.y)), // Y position
                 DataType.int(button)
             ]))
         }
@@ -90,8 +90,8 @@ private class PointerClickRecognizer: UIGestureRecognizer {
             self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(mouseMoveEventType), // Event Type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(loc.x), // X position
-                DataType.double(loc.y), // Y position
+                DataType.double(Double(loc.x)), // X position
+                DataType.double(Double(loc.y)), // Y position
                 DataType.int(button)
             ]))
         }
@@ -109,8 +109,8 @@ private class PointerClickRecognizer: UIGestureRecognizer {
             self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(mouseUpEventType), // Event Type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(loc.x), // X position
-                DataType.double(loc.y), // Y position
+                DataType.double(Double(loc.x)), // X position
+                DataType.double(Double(loc.y)), // Y position
                 DataType.int(button)
             ]))
         }
@@ -128,8 +128,8 @@ private class PointerClickRecognizer: UIGestureRecognizer {
             self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(mouseUpEventType), // Event Type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(loc.x), // X position
-                DataType.double(loc.y), // Y position
+                DataType.double(Double(loc.x)), // X position
+                DataType.double(Double(loc.y)), // Y position
                 DataType.int(button)
             ]))
         }

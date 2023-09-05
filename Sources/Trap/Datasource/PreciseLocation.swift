@@ -37,6 +37,7 @@ public class TrapPreciseLocationCollector: NSObject, TrapDatasource {
     }
 
     public func checkPermission() -> Bool {
+#if compiler(>=5.4.2)
         if #available(iOS 14, *) {
             switch locationManager.authorizationStatus {
             case .restricted, .denied, .notDetermined:
@@ -46,7 +47,9 @@ public class TrapPreciseLocationCollector: NSObject, TrapDatasource {
             @unknown default:
                 break
             }
-        } else {
+        }
+#else
+        if #available(iOS 14,*) {} else {
             switch CLLocationManager.authorizationStatus() {
             case .restricted, .denied, .notDetermined:
                 return false
@@ -56,7 +59,8 @@ public class TrapPreciseLocationCollector: NSObject, TrapDatasource {
                 break
             }
         }
-
+#endif
+        
         return false
     }
 

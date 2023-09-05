@@ -13,8 +13,8 @@ public final class TrapPinchCollector: TrapGestureCollector, TrapDatasource {
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(pinchEventType),
             DataType.int64(timestamp),
-            DataType.double(gesture.scale),
-            DataType.double(gesture.velocity)
+            DataType.double(Double(gesture.scale)),
+            DataType.double(Double(gesture.velocity))
         ]))
     }
 

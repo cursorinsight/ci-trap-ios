@@ -46,11 +46,13 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     // MARK: Touches began
 
     private func _touchesBegan(_ touch: UITouch, _ fingerIndex: Int) {
+#if compiler(>=5.4.2)
         if #available(iOS 13.4, *) {
             if touch.type != .direct {
                 return
             }
         }
+#endif
 
         let loc = touch.location(in: nil)
         let timestamp = TrapTime.normalizeTime(touch.timestamp)
@@ -58,20 +60,20 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
             DataType.int(touchStartEventType), // Event Type
             DataType.int64(timestamp), // Timestamp
             DataType.int(fingerIndex), // Finger identifier
-            DataType.double(loc.x), // X position
-            DataType.double(loc.y), // Y position
-            DataType.double(touch.force), // Force of touch
-            DataType.double(touch.majorRadius) // Major radius
+            DataType.double(Double(loc.x)), // X position
+            DataType.double(Double(loc.y)), // Y position
+            DataType.double(Double(touch.force)), // Force of touch
+            DataType.double(Double(touch.majorRadius)) // Major radius
 
         ]))
     }
 
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         touches.forEach { coalescedTouch in
-            let fingerIndex = {
+            let fingerIndex: Int = {
                 if let idx = fingers.firstIndex(of: nil) {
                     fingers[idx] = coalescedTouch
-                    return idx
+                    return Int(idx)
                 } else {
                     fingers.append(coalescedTouch)
                     return fingers.count
@@ -86,11 +88,13 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     // MARK: Touches in progress
 
     private func _touchesMoved(_ touch: UITouch, _ fingerIndex: Int) {
+#if compiler(>=5.4.2)
         if #available(iOS 13.4, *) {
             if touch.type != .direct {
                 return
             }
         }
+#endif
 
         let loc = touch.location(in: nil)
         let timestamp = TrapTime.normalizeTime(touch.timestamp)
@@ -98,10 +102,10 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
             DataType.int(touchMoveEventType), // Event Type
             DataType.int64(timestamp), // Timestamp
             DataType.int(fingerIndex), // Finger identifier
-            DataType.double(loc.x), // X position
-            DataType.double(loc.y), // Y position
-            DataType.double(touch.force), // Force of touch
-            DataType.double(touch.majorRadius) // Major radius
+            DataType.double(Double(loc.x)), // X position
+            DataType.double(Double(loc.y)), // Y position
+            DataType.double(Double(touch.force)), // Force of touch
+            DataType.double(Double(touch.majorRadius)) // Major radius
         ]))
     }
 
@@ -119,11 +123,13 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     // MARK: Touches ended or cancelled
 
     private func _touchesEnded(_ touch: UITouch, _ fingerIndex: Int) {
+#if compiler(>=5.4.2)
         if #available(iOS 13.4, *) {
             if touch.type != .direct {
                 return
             }
         }
+#endif
 
         let loc = touch.location(in: nil)
         let timestamp = TrapTime.normalizeTime(touch.timestamp)
@@ -131,10 +137,10 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
             DataType.int(touchStopEventType), // Event Type
             DataType.int64(timestamp), // Timestamp
             DataType.int(fingerIndex), // Finger identifier
-            DataType.double(loc.x), // X position
-            DataType.double(loc.y), // Y position
-            DataType.double(touch.force), // Force of touch
-            DataType.double(touch.majorRadius) // Major radius
+            DataType.double(Double(loc.x)), // X position
+            DataType.double(Double(loc.y)), // Y position
+            DataType.double(Double(touch.force)), // Force of touch
+            DataType.double(Double(touch.majorRadius)) // Major radius
         ]))
     }
 
@@ -152,11 +158,13 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     }
 
     private func _touchesCancelled(_ touch: UITouch, _ fingerIndex: Int) {
+#if compiler(>=5.4.2)
         if #available(iOS 13.4, *) {
             if touch.type != .direct {
                 return
             }
         }
+#endif        
 
         let loc = touch.location(in: nil)
         let timestamp = TrapTime.normalizeTime(touch.timestamp)
@@ -164,10 +172,10 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
             DataType.int(touchStopEventType), // Event Type
             DataType.int64(timestamp), // Timestamp
             DataType.int(fingerIndex), // Finger identifier
-            DataType.double(loc.x), // X position
-            DataType.double(loc.y), // Y position
-            DataType.double(touch.force), // Force of touch
-            DataType.double(touch.majorRadius) // Major radius
+            DataType.double(Double(loc.x)), // X position
+            DataType.double(Double(loc.y)), // Y position
+            DataType.double(Double(touch.force)), // Force of touch
+            DataType.double(Double(touch.majorRadius)) // Major radius
         ]))
     }
 

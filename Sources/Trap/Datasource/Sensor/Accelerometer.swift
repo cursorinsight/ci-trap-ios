@@ -52,9 +52,9 @@ public class TrapAccelerometerCollector: TrapDatasource {
             this.delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(accelerometerEventType), // Event type
                 DataType.int64(timestamp), // Timestamp
-                DataType.double(acceleration.x), // X direction
-                DataType.double(acceleration.y), // Y direction
-                DataType.double(acceleration.z) // Z direction
+                DataType.double(Double(acceleration.x)), // X direction
+                DataType.double(Double(acceleration.y)), // Y direction
+                DataType.double(Double(acceleration.z)) // Z direction
             ]))
         }
     }

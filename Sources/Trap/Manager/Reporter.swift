@@ -70,13 +70,13 @@ class TrapReporter {
                 return nil
             }
         }()
-        guard let connection else {
+        guard let conn = connection else {
             throw TransportSchemeError()
         }
         if config.reporter.cachedTransport {
-            transport = TrapCachedTransport(with: connection)
+            transport = TrapCachedTransport(with: conn)
         } else {
-            transport = connection
+            transport = conn
         }
         transport?.start()
 
@@ -101,12 +101,12 @@ class TrapReporter {
                 .map { String(data: $0, encoding: .utf8)! }
                 .joined(separator: ",\n")
 
-            guard let json else { return }
+            guard let encoded = json else { return }
 
             let packet = [
                 String(data: try! encoder.encode(this.getHeader()), encoding: .utf8)!,
                 String(data: try! encoder.encode(this.getMetadata()), encoding: .utf8)!,
-                json
+                encoded
             ].joined(separator: ",\n")
 
             this.transport?.send(data: "[\n" + packet + "\n]") { error in
