@@ -2,6 +2,11 @@
 
 import PackageDescription
 
+var deps: [PackageDescription.Package.Dependency] = []
+#if compiler(>=5.6.0)
+deps.append(.package(url: "https://github.com/apple/swift-docc-plugin", from: "1.3.0"))
+#endif
+
 let package = Package(
     name: "Trap",
     platforms: [
@@ -13,7 +18,7 @@ let package = Package(
             targets: ["Trap"]
         )
     ],
-    dependencies: [],
+    dependencies: deps,
     targets: [
         .target(
             name: "Trap"
