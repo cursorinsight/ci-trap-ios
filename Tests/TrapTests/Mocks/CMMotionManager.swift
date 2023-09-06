@@ -27,22 +27,46 @@ extension CMMotionManager {
         }()
     }
     
+    static func disableMock() {
+        if self != CMMotionManager.self {
+            return
+        }
+        
+        CMMotionManager.tasks.values.forEach { $0.cancel() }
+        
+        let _: () = {
+            let originalSelector = #selector(CMMotionManager.mocked_startAccelerometerUpdates(to:withHandler:))
+            let newSelector = #selector(CMMotionManager.startAccelerometerUpdates(to:withHandler:))
+            let originalMethod = class_getInstanceMethod(self, originalSelector)
+            let newMethod = class_getInstanceMethod(self, newSelector)
+            method_exchangeImplementations(originalMethod!, newMethod!)
+        }()
+        
+        let _: () = {
+            let originalSelector = #selector(CMMotionManager.mocked_stopAccelerometerUpdates)
+            let newSelector = #selector(CMMotionManager.stopAccelerometerUpdates)
+            let originalMethod = class_getInstanceMethod(self, originalSelector)
+            let newMethod = class_getInstanceMethod(self, newSelector)
+            method_exchangeImplementations(originalMethod!, newMethod!)
+        }()
+    }
+    
     @objc dynamic func mocked_startAccelerometerUpdates(to queue: OperationQueue, withHandler handler: @escaping CMAccelerometerHandler) {
         class MockedCMAccelerometerData: CMAccelerometerData {
-            var mockedTimestamp = 0.0
+            var mockedTimestamp = -1.0
             override var timestamp: TimeInterval { get {
-                mockedTimestamp = mockedTimestamp + 1.0;
+                mockedTimestamp = mockedTimestamp + 2.0;
                 
                 return mockedTimestamp
             } }
             
-            var mockAcceleration = CMAcceleration(x: 0.0, y: 0.0, z: 0.0)
+            var mockAcceleration = CMAcceleration(x: 0.0, y: 1.0, z: 0.0)
             
             override var acceleration: CMAcceleration { get {
                 mockAcceleration = CMAcceleration(
-                    x: mockAcceleration.x + 1.0,
-                    y: mockAcceleration.y + 1.0,
-                    z: mockAcceleration.z + 1.0
+                    x: mockAcceleration.x + 2.0,
+                    y: mockAcceleration.y - 2.0,
+                    z: mockAcceleration.z - 2.0
                 );
                 
                 return mockAcceleration
@@ -59,6 +83,7 @@ extension CMMotionManager {
     }
     
     @objc dynamic func mocked_stopAccelerometerUpdates() {
+        print("stopAccelerometer")
         CMMotionManager.tasks[self.hashValue]?.cancel()
     }
 }

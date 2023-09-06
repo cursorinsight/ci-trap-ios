@@ -27,6 +27,7 @@ public protocol TrapDatasource {
 }
 
 /// The data source delegate which abstracts away data frame storage.
+/// @mockable
 public protocol TrapDatasourceDelegate {
     /// Save a data frame with a unique sequence number used for
     /// soring frames withing a data packet.
