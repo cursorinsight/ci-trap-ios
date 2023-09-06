@@ -22,7 +22,6 @@ jobs:
         run: xcversion select 11.7
       - name: Build and test
         run: |
-          rm Package.resolve; rm Example/Example.xcworkspace/xcshareddata/swiftpm/Package.resolved; \
           xcodebuild clean test -workspace .swiftpm/xcode/package.xcworkspace \
             -scheme Trap \
             -sdk iphonesimulator13.7 \
