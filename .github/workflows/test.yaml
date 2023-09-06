@@ -1,65 +1,65 @@
-# permissions:
-#   contents: read
-# on:
-#   push:
-#     branches: [main]
-#   pull_request:
-# # Spend CI time only on latest ref
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-#   cancel-in-progress: true
-# name: test
-# jobs:
-#   test-ios13:
-#   # iOS 13.7 is the oldest we can go, but that is only available on the macOS 11 runner image
-#   # https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md
-#     name: Test iOS13
-#     runs-on: macOS-11
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@master
-#       - name: Select
-#         run: xcversion select 11.7
-#       - name: Build and test
-#         run: |
-#           rm Package.resolve; rm Example/Example.xcworkspace/xcshareddata/swiftpm/Package.resolved; \
-#           xcodebuild clean test -workspace .swiftpm/xcode/package.xcworkspace \
-#             -scheme Trap \
-#             -sdk iphonesimulator13.7 \
-#             -destination "platform=iOS Simulator,OS=13.7,name=iPhone 8" \
-#             -disableAutomaticPackageResolution \
-#             -usePackageSupportBuiltinSCM \
-#             CODE_SIGN_IDENTITY="" \
-#             CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO
-#   test-ios16:
-#     name: Test iOS16
-#     runs-on: macOS-13
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@master
-#       - name: Select
-#         run: xcversion select 14.3.1
-#       - name: Build and test
-#         run: |
-#           xcodebuild clean test -workspace .swiftpm/xcode/package.xcworkspace \
-#             -scheme Trap \
-#             -sdk iphonesimulator16.4 \
-#             -destination "platform=iOS Simulator,OS=16.4,name=iPhone 14" \
-#             -disableAutomaticPackageResolution \
-#             -usePackageSupportBuiltinSCM \
-#             -enableCodeCoverage YES \
-#             -derivedDataPath .build/ \
-#             -resultBundlePath .build/ResultBundle.xcresult \
-#             CODE_SIGN_IDENTITY="" \
-#             CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO
-#       - name: Convert to Codecov
-#         run: |
-#           brew tap a7ex/homebrew-formulae
-#           brew install xcresultparser
-#           xcresultparser \
-#             --output-format cobertura \
-#             .build/ResultBundle.xcresult > coverage.xml
-#       - name: Upload coverage reports to Codecov
-#         uses: codecov/codecov-action@v3
-#         env:
-#           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+permissions:
+  contents: read
+on:
+  push:
+    branches: [main]
+  pull_request:
+# Spend CI time only on latest ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+name: test
+jobs:
+  test-ios13:
+  # iOS 13.7 is the oldest we can go, but that is only available on the macOS 11 runner image
+  # https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md
+    name: Test iOS13
+    runs-on: macOS-11
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Select
+        run: xcversion select 11.7
+      - name: Build and test
+        run: |
+          rm Package.resolve; rm Example/Example.xcworkspace/xcshareddata/swiftpm/Package.resolved; \
+          xcodebuild clean test -workspace .swiftpm/xcode/package.xcworkspace \
+            -scheme Trap \
+            -sdk iphonesimulator13.7 \
+            -destination "platform=iOS Simulator,OS=13.7,name=iPhone 8" \
+            -disableAutomaticPackageResolution \
+            -usePackageSupportBuiltinSCM \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO
+  test-ios16:
+    name: Test iOS16
+    runs-on: macOS-13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Select
+        run: xcversion select 14.3.1
+      - name: Build and test
+        run: |
+          xcodebuild clean test -workspace .swiftpm/xcode/package.xcworkspace \
+            -scheme Trap \
+            -sdk iphonesimulator16.4 \
+            -destination "platform=iOS Simulator,OS=16.4,name=iPhone 14" \
+            -disableAutomaticPackageResolution \
+            -usePackageSupportBuiltinSCM \
+            -enableCodeCoverage YES \
+            -derivedDataPath .build/ \
+            -resultBundlePath .build/ResultBundle.xcresult \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO
+      - name: Convert to Codecov
+        run: |
+          brew tap a7ex/homebrew-formulae
+          brew install xcresultparser
+          xcresultparser \
+            --output-format cobertura \
+            .build/ResultBundle.xcresult > coverage.xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
