@@ -78,6 +78,7 @@ extension CMMotionManager {
             after: .init(Date(timeIntervalSinceNow: 1)),
             interval: .milliseconds(20)
         ) {
+            print("QUEUE")
             handler(data, nil)
         }
     }
