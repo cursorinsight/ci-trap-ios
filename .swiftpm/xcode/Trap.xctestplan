@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "18B74DFD-B34F-41E8-86BA-3C4ED4BA38A1",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TrapTests",
+        "name" : "TrapTests"
+      }
+    }
+  ],
+  "version" : 1
+}
