@@ -3,6 +3,8 @@ import CoreMotion
 extension CMMotionManager {
     static let q = DispatchQueue.global(qos: .default)
     static var tasks = [Int : Timer]()
+    static var startAccelerometerCalled: (() -> Void)?
+    static var stopAccelerometerCalled: (() -> Void)?
 
     
     static func enableMock() {
@@ -52,6 +54,8 @@ extension CMMotionManager {
     }
     
     @objc dynamic func mocked_startAccelerometerUpdates(to queue: OperationQueue, withHandler handler: @escaping CMAccelerometerHandler) {
+        CMMotionManager.startAccelerometerCalled?()
+        
         class MockedCMAccelerometerData: CMAccelerometerData {
             var mockedTimestamp = -1.0
             override var timestamp: TimeInterval { get {
@@ -86,6 +90,8 @@ extension CMMotionManager {
     }
     
     @objc dynamic func mocked_stopAccelerometerUpdates() {
+        CMMotionManager.stopAccelerometerCalled?()
+        
         CMMotionManager.tasks[self.hashValue]?.invalidate()
         CMMotionManager.tasks.removeValue(forKey: self.hashValue)
     }

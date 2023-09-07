@@ -12,6 +12,12 @@ final class SensorTests: XCTestCase {
     }
     
     func testAccelerometer() throws {
+        let startAccelerometerCalled = expectation(description: "startAccelerometer is called")
+        CMMotionManager.startAccelerometerCalled = { startAccelerometerCalled.fulfill() }
+        
+        let stopAccelerometerCalled = expectation(description: "stopAccelerometer is called")
+        CMMotionManager.stopAccelerometerCalled = { stopAccelerometerCalled.fulfill() }
+        
         let sendsCompleted = [
             "[103,\(TrapTime.normalizeTime(1.0)),2,-1,-2]": expectation(description: "Data point 1.0"),
             "[103,\(TrapTime.normalizeTime(3.0)),4,-3,-4]": expectation(description: "Data point 2.0"),
@@ -34,7 +40,9 @@ final class SensorTests: XCTestCase {
         let collector = TrapAccelerometerCollector()
         collector.delegate = delegateMock
         collector.start()
+        wait(for: [startAccelerometerCalled], timeout: 1)
         wait(for: sendsCompleted.values.map { $0 }, timeout: 10)
         collector.stop()
+        wait(for: [stopAccelerometerCalled], timeout: 1)
     }
 }
