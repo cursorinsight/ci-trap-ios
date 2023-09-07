@@ -1,8 +1,8 @@
-import Combine
 import CoreMotion
 
 extension CMMotionManager {
-    static var tasks = [Int : Cancellable]()
+    static let q = DispatchQueue.global(qos: .default)
+    static var tasks = [Int : Timer]()
 
     
     static func enableMock() {
@@ -32,7 +32,7 @@ extension CMMotionManager {
             return
         }
         
-        CMMotionManager.tasks.values.forEach { $0.cancel() }
+        CMMotionManager.tasks.values.forEach { $0.invalidate() }
         
         let _: () = {
             let originalSelector = #selector(CMMotionManager.mocked_startAccelerometerUpdates(to:withHandler:))
@@ -74,17 +74,19 @@ extension CMMotionManager {
         }
         let data = MockedCMAccelerometerData()
         
-        CMMotionManager.tasks[self.hashValue] = OperationQueue.main.schedule(
-            after: .init(Date(timeIntervalSinceNow: 1)),
-            interval: .milliseconds(50),
-            tolerance: .milliseconds(20)
-        ) {
+        CMMotionManager.tasks[self.hashValue] = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
             print("QUEUE")
             handler(data, nil)
+        }
+        
+        CMMotionManager.q.async {
+            RunLoop.current.add(CMMotionManager.tasks[self.hashValue]!, forMode: .default)
+            RunLoop.current.run()
         }
     }
     
     @objc dynamic func mocked_stopAccelerometerUpdates() {
-        CMMotionManager.tasks[self.hashValue]?.cancel()
+        CMMotionManager.tasks[self.hashValue]?.invalidate()
+        CMMotionManager.tasks.removeValue(forKey: self.hashValue)
     }
 }
