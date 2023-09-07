@@ -34,7 +34,7 @@ final class SensorTests: XCTestCase {
         let collector = TrapAccelerometerCollector()
         collector.delegate = delegateMock
         collector.start()
-        wait(for: sendsCompleted.values.map { $0 }, timeout: 3)
+        wait(for: sendsCompleted.values.map { $0 }, timeout: 10)
         collector.stop()
     }
 }

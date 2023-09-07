@@ -83,7 +83,6 @@ extension CMMotionManager {
     }
     
     @objc dynamic func mocked_stopAccelerometerUpdates() {
-        print("stopAccelerometer")
         CMMotionManager.tasks[self.hashValue]?.cancel()
     }
 }
