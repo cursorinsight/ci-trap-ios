@@ -15,8 +15,9 @@ jobs:
         run: |
           mkdir -p ./.build/docc && \
           xcodebuild clean docbuild \
+            -workspace .swiftpm/xcode/package.xcworkspace \
             -scheme "Trap" \
-            -destination "platform=iOS Simulator,OS=16.2,name=iPhone 14" \
+            -destination "generic/platform=iOS" \
             -derivedDataPath "./.build/docc" \
           OTHER_DOCC_FLAGS="--transform-for-static-hosting --hosting-base-path ci-trap-ios/ --output-path public/"
       - name: Deploy

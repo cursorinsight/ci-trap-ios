@@ -3,8 +3,11 @@
 import PackageDescription
 
 var deps: [PackageDescription.Package.Dependency] = []
+
+// The old Swift CI test can't build the docc plugin
+// hence the conditional dependency here
 #if compiler(>=5.6.0)
-deps.append(.package(url: "https://github.com/apple/swift-docc-plugin", from: "1.3.0"))
+    deps.append(.package(url: "https://github.com/apple/swift-docc-plugin", from: "1.3.0"))
 #endif
 
 let package = Package(
@@ -16,16 +19,18 @@ let package = Package(
         .library(
             name: "Trap",
             targets: ["Trap"]
-        )
+        ),
     ],
     dependencies: deps,
     targets: [
         .target(
-            name: "Trap"
+            name: "Trap",
+            path: "Sources"
         ),
         .testTarget(
             name: "TrapTests",
-            dependencies: ["Trap"]
+            dependencies: ["Trap"],
+            path: "Tests"
         )
     ]
 )
