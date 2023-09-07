@@ -74,9 +74,10 @@ extension CMMotionManager {
         }
         let data = MockedCMAccelerometerData()
         
-        CMMotionManager.tasks[self.hashValue] = queue.schedule(
+        CMMotionManager.tasks[self.hashValue] = OperationQueue.main.schedule(
             after: .init(Date(timeIntervalSinceNow: 1)),
-            interval: .milliseconds(20)
+            interval: .milliseconds(50),
+            tolerance: .milliseconds(20)
         ) {
             print("QUEUE")
             handler(data, nil)
