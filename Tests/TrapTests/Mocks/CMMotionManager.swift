@@ -79,7 +79,6 @@ extension CMMotionManager {
         let data = MockedCMAccelerometerData()
         
         CMMotionManager.tasks[self.hashValue] = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            print("QUEUE")
             handler(data, nil)
         }
         
