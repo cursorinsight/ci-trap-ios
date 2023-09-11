@@ -55,5 +55,12 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO \
             build test
+      - name: Convert to Codecov
+        run: |
+          brew tap a7ex/homebrew-formulae
+          brew install xcresultparser
+          xcresultparser \
+            --output-format cobertura \
+            ResultBundle.xcresult > coverage.xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
