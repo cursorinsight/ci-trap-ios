@@ -15,7 +15,9 @@ final class GestureTests: XCTestCase {
         let sendsCompleted = [
             "[100,\(TrapTime.normalizeTime(1.0)),0,1,2,-1,-2]": expectation(description: "Start"),
             "[101,\(TrapTime.normalizeTime(3.0)),0,3,4,-3,-4]": expectation(description: "Move"),
-            "[102,\(TrapTime.normalizeTime(5.0)),0,5,6,-5,-6]": expectation(description: "End")
+            "[102,\(TrapTime.normalizeTime(5.0)),0,5,6,-5,-6]": expectation(description: "End"),
+            "[100,\(TrapTime.normalizeTime(21.0)),0,22,23,24,25]": expectation(description: "Start Again"),
+            "[102,\(TrapTime.normalizeTime(31.0)),0,32,33,34,35]": expectation(description: "Cancel"),
         ]
         
         let collector = TrapTouchCollector()
@@ -69,6 +71,27 @@ final class GestureTests: XCTestCase {
         event._touches = [touch]
         UIWindow.mock_recognizers.values.forEach { recognizer in
             recognizer.touchesEnded(Set(event._touches!), with: event)
+        }
+        
+        // CANCEL
+        touch._type = .direct
+        touch._timestamp = 21.0
+        touch._location = CGPoint(x: 22.0, y: 23.0)
+        touch._force = 24.0
+        touch._majorRadius = 25.0
+        event._touches = [touch]
+        UIWindow.mock_recognizers.values.forEach { recognizer in
+            recognizer.touchesBegan(Set(event._touches!), with: event)
+        }
+
+        touch._type = .direct
+        touch._timestamp = 31.0
+        touch._location = CGPoint(x: 32.0, y: 33.0)
+        touch._force = 34.0
+        touch._majorRadius = 35.0
+        event._touches = [touch]
+        UIWindow.mock_recognizers.values.forEach { recognizer in
+            recognizer.touchesCancelled(Set(event._touches!), with: event)
         }
         
         wait(for: sendsCompleted.values.map { $0 }, timeout: 10)
