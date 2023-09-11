@@ -9,6 +9,12 @@ class ConcurrentRingQueue<T> {
 
     /// The serial dispatch queue for managing concurrency.
     private var dispatcher: DispatchQueue
+    
+    var count: Int {
+        get {
+            return queue.count
+        }
+    }
 
     /// Create a concurrent version of the RingQueue instance.
     public init(withCapacity: Int = 1024) {
@@ -48,5 +54,12 @@ class ConcurrentRingQueue<T> {
         }
 
         return result
+    }
+    
+    /// Clean the ring queue
+    public func removeAll() {
+        dispatcher.sync {
+            queue.removeAll()
+        }
     }
 }
