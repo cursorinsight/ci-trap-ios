@@ -48,5 +48,18 @@ class UITouchMock: UITouch {
         return _location
     }
     
+    var _altitudeAngle: CGFloat = CGFloat.zero
+    override var altitudeAngle: CGFloat {
+        get {
+            return _altitudeAngle
+        }
+        set {
+            self._altitudeAngle = newValue
+        }
+    }
     
+    var _azimuthAngle: CGFloat = CGFloat.zero
+    override func azimuthAngle(in _: UIView?) -> CGFloat {
+        _azimuthAngle
+    }
 }
