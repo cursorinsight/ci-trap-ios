@@ -108,6 +108,8 @@ final class GestureTests: XCTestCase {
             recognizer.touchesBegan(Set(event._touches!), with: event)
         }
         
+        XCTAssertNotNil(TrapTouchCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        
         collector.stop()
     }
     
@@ -118,7 +120,7 @@ final class GestureTests: XCTestCase {
             "[0,\(TrapTime.normalizeTime(3.0)),3,4,0]": expectation(description: "Move"),
             "[6,\(TrapTime.normalizeTime(5.0)),5,6,0]": expectation(description: "End"),
             "[5,\(TrapTime.normalizeTime(21.0)),22,23,1]": expectation(description: "Start Again"),
-            "[6,\(TrapTime.normalizeTime(31.0)),32,33,1]": expectation(description: "Cancel"),
+            "[6,\(TrapTime.normalizeTime(31.0)),32,33,1]": expectation(description: "Cancel")
         ]
         
         let collector = TrapPointerCollector()
@@ -197,6 +199,32 @@ final class GestureTests: XCTestCase {
         }
         
         collector.stop()
+        
+        let delegate2 = TrapDatasourceDelegateMock()
+        delegate2.saveHandler = { seq, data in
+            guard case let DataType.array(frame) = data else {
+                return
+            }
+            guard case let DataType.int(eventType) = frame[0] else {
+                return
+            }
+            guard case let DataType.double(x) = frame[2] else {
+                return
+            }
+            guard case let DataType.double(y) = frame[3] else {
+                return
+            }
+            XCTAssertEqual(eventType, 0)
+            XCTAssertEqual(x, 42.0)
+            XCTAssertEqual(y, 43.0)
+        }
+        collector.delegate = delegate2
+        
+        let hover = UIHoverGestureRecognizerMock()
+        hover._location = CGPoint(x: 42.0, y: 43.0)
+        collector.handleHover(hover)
+        
+        XCTAssertNotNil(TrapPointerCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
     }
     
     func testStylus() throws {
@@ -299,5 +327,7 @@ final class GestureTests: XCTestCase {
         }
         
         collector.stop()
+        
+        XCTAssertNotNil(TrapStylusCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
     }
 }
