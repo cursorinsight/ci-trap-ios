@@ -44,50 +44,6 @@ public enum DataType: Codable {
     case array([DataType])
     case dict([String: DataType])
 
-    /// Decodes a data from a serialized format into Swift native
-    /// data format.
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let item = try? container.decode(String.self) {
-            self = .string(item)
-            return
-        }
-        if let item = try? container.decode(Int.self) {
-            self = .int(item)
-            return
-        }
-        if let item = try? container.decode(Int64.self) {
-            self = .int64(item)
-            return
-        }
-        if let item = try? container.decode(Float.self) {
-            self = .float(item)
-            return
-        }
-        if let item = try? container.decode(Double.self) {
-            self = .double(item)
-            return
-        }
-
-        var values = try? decoder.unkeyedContainer()
-        if let item = try? values?.decode([DataType].self) {
-            self = .array(item)
-            return
-        }
-        if let item = try? values?.decode([String: DataType].self) {
-            self = .dict(item)
-            return
-        }
-
-        throw DecodingError.typeMismatch(
-            DataType.self,
-            DecodingError.Context(
-                codingPath: decoder.codingPath,
-                debugDescription: "Wrong type for DataType"
-            )
-        )
-    }
-
     /// Encodes a native swift data structure into a serialized one.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
