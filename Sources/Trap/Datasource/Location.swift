@@ -5,7 +5,6 @@ let locationEventType = 109
 public class TrapLocationCollector: NSObject, TrapDatasource {
     public var delegate: TrapDatasourceDelegate?
     private let locationManager: CLLocationManager
-    private var timer: Timer?
     private var authSuccess: (() -> Void)?
 
     /// Create a collector which monitors for high accuracy
@@ -91,10 +90,6 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
     public static func instance(withConfig config: Config, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapLocationCollector(withConfig: config)
     }
-
-    deinit {
-        stop()
-    }
 }
 
 /// CLLocationManagerDelegate implementation.
@@ -119,7 +114,7 @@ extension TrapLocationCollector: CLLocationManagerDelegate {
     public func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             let coords = location.coordinate
-            let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+            let timestamp = Int64(location.timestamp.timeIntervalSince1970 * 1000)
             delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(locationEventType),
                 DataType.int64(timestamp),
@@ -129,19 +124,6 @@ extension TrapLocationCollector: CLLocationManagerDelegate {
                 DataType.double(Double(location.horizontalAccuracy))
             ]))
         }
-    }
-
-    public func locationManager(manager _: CLLocationManager, didUpdateTo location: CLLocation, from _: CLLocation) {
-        let coords = location.coordinate
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
-        delegate?.save(sequence: timestamp, data: DataType.array([
-            DataType.int(locationEventType),
-            DataType.int64(timestamp),
-            DataType.double(Double(coords.latitude)),
-            DataType.double(Double(coords.longitude)),
-            DataType.double(Double(location.altitude)),
-            DataType.double(Double(location.horizontalAccuracy))
-        ]))
     }
 
     public func locationManager(_ manager: CLLocationManager, didFinishDeferredUpdatesWithError error: Error?) {
