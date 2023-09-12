@@ -15,6 +15,7 @@ class WiFiTest: XCTestCase {
     }
     
     func testWiFi() {
+#if compiler(>=5.7)
         let initial = expectation(description: "A WiFi network is identified")
         initial.assertForOverFulfill = false
         
@@ -70,5 +71,6 @@ class WiFiTest: XCTestCase {
         collector.stop()
         
         XCTAssertNotNil(TrapWiFiCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+#endif
     }
 }

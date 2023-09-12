@@ -33,34 +33,34 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO \
             build test
-  # test-ios16:
-  #   name: Test iOS16
-  #   runs-on: macOS-13
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@master
-  #     - name: Select
-  #       run: xcversion select 14.3.1
-  #     - name: Build and test
-  #       run: |
-  #         xcodebuild test \
-  #           -workspace .swiftpm/xcode/package.xcworkspace \
-  #           -scheme Trap \
-  #           -sdk iphonesimulator16.4 \
-  #           -destination "platform=iOS Simulator,OS=16.4,name=iPhone 14" \
-  #           -disableAutomaticPackageResolution \
-  #           -usePackageSupportBuiltinSCM \
-  #           -enableCodeCoverage YES \
-  #           -resultBundlePath ResultBundle.xcresult \
-  #           CODE_SIGN_IDENTITY="" \
-  #           CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO \
-  #           build test
-  #     - name: Convert to Codecov
-  #       run: |
-  #         brew tap a7ex/homebrew-formulae
-  #         brew install xcresultparser
-  #         xcresultparser \
-  #           --output-format cobertura \
-  #           ResultBundle.xcresult > coverage.xml
-  #     - name: Upload coverage reports to Codecov
-  #       uses: codecov/codecov-action@v3
+  test-ios16:
+    name: Test iOS16
+    runs-on: macOS-13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Select
+        run: xcversion select 14.3.1
+      - name: Build and test
+        run: |
+          xcodebuild test \
+            -workspace .swiftpm/xcode/package.xcworkspace \
+            -scheme Trap \
+            -sdk iphonesimulator16.4 \
+            -destination "platform=iOS Simulator,OS=16.4,name=iPhone 14" \
+            -disableAutomaticPackageResolution \
+            -usePackageSupportBuiltinSCM \
+            -enableCodeCoverage YES \
+            -resultBundlePath ResultBundle.xcresult \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO \
+            build test
+      - name: Convert to Codecov
+        run: |
+          brew tap a7ex/homebrew-formulae
+          brew install xcresultparser
+          xcresultparser \
+            --output-format cobertura \
+            ResultBundle.xcresult > coverage.xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
