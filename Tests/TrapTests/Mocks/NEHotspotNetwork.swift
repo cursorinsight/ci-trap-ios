@@ -8,7 +8,7 @@ extension NEHotspotNetwork {
         if self != NEHotspotNetwork.self {
             return
         }
-#if compiler(>=5.4.2)
+#if compiler(>=5.7)
         let _: () = {
             let originalSelector = #selector(NEHotspotNetwork.fetchCurrent(completionHandler:))
             let newSelector = #selector(NEHotspotNetwork.mocked_fetchCurrent(completionHandler:))
@@ -24,7 +24,7 @@ extension NEHotspotNetwork {
             return
         }
         
-#if compiler(>=5.4.2)
+#if compiler(>=5.7)
         let _: () = {
             let originalSelector = #selector(NEHotspotNetwork.mocked_fetchCurrent(completionHandler:))
             let newSelector = #selector(NEHotspotNetwork.fetchCurrent(completionHandler:))
