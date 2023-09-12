@@ -35,7 +35,7 @@ public protocol TrapDatasourceDelegate {
 }
 
 /// Data serialization helper.
-public enum DataType: Codable {
+public enum DataType: Encodable {
     case string(String)
     case int(Int)
     case int64(Int64)
