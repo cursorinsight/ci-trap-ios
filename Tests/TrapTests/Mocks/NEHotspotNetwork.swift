@@ -8,7 +8,7 @@ extension NEHotspotNetwork {
         if self != NEHotspotNetwork.self {
             return
         }
-        
+#if compiler(>=5.4.2)
         let _: () = {
             let originalSelector = #selector(NEHotspotNetwork.fetchCurrent(completionHandler:))
             let newSelector = #selector(NEHotspotNetwork.mocked_fetchCurrent(completionHandler:))
@@ -16,6 +16,7 @@ extension NEHotspotNetwork {
             let newMethod = class_getClassMethod(NEHotspotNetwork.self, newSelector)
             method_exchangeImplementations(originalMethod!, newMethod!)
         }()
+#endif
     }
     
     static func disableMock() {
@@ -23,6 +24,7 @@ extension NEHotspotNetwork {
             return
         }
         
+#if compiler(>=5.4.2)
         let _: () = {
             let originalSelector = #selector(NEHotspotNetwork.mocked_fetchCurrent(completionHandler:))
             let newSelector = #selector(NEHotspotNetwork.fetchCurrent(completionHandler:))
@@ -30,6 +32,7 @@ extension NEHotspotNetwork {
             let newMethod = class_getClassMethod(NEHotspotNetwork.self, newSelector)
             method_exchangeImplementations(originalMethod!, newMethod!)
         }()
+#endif
     }
     
     @objc class func mocked_fetchCurrent(completionHandler: @escaping (NEHotspotNetwork?) -> Void) {
