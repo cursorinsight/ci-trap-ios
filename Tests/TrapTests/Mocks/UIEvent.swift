@@ -22,17 +22,5 @@ extension UIEventMock {
                 return .primary
             }
         }
-        set {
-            switch newValue {
-            case .primary:
-                self._buttonMask = 0
-                break
-            case .secondary:
-                self._buttonMask = 1
-                break
-            default:
-                break
-            }
-        }
     }
 }

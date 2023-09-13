@@ -5,10 +5,16 @@ import XCTest
 final class GestureTests: XCTestCase {
     override func setUp() {
         UIWindow.enableMock()
+        UITapGestureRecognizer.enableMock()
+        UISwipeGestureRecognizer.enableMock()
+        UIPinchGestureRecognizer.enableMock()
     }
     
     override func tearDown() {
         UIWindow.disableMock()
+        UITapGestureRecognizer.disableMock()
+        UISwipeGestureRecognizer.disableMock()
+        UIPinchGestureRecognizer.disableMock()
     }
     
     func testTouch() throws {
@@ -109,6 +115,7 @@ final class GestureTests: XCTestCase {
         }
         
         XCTAssertNotNil(TrapTouchCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(collector.createRecongizers(UIWindow(frame: CGRect.zero)))
         
         collector.stop()
     }
@@ -329,5 +336,106 @@ final class GestureTests: XCTestCase {
         collector.stop()
         
         XCTAssertNotNil(TrapStylusCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+    }
+    
+    func testTap() throws {
+        let tapCalled = expectation(description: "Tap handler is called")
+        let collector = TrapTapCollector()
+        let recognizer = collector.createRecongizers(UIWindow(frame: CGRect.zero)).first as! UITapGestureRecognizer
+        let delegate = TrapDatasourceDelegateMock()
+        delegate.saveHandler = { seq, data in
+            guard case let DataType.array(frame) = data,
+                  case let DataType.int(eventType) = frame[0],
+                  case let DataType.double(x) = frame[2],
+                  case let DataType.double(y) = frame[3] else {
+                XCTFail("Data frame is incorrect")
+                return
+            }
+            
+            XCTAssertEqual(eventType, 122)
+            XCTAssertEqual(x, 35.0)
+            XCTAssertEqual(y, 55.0)
+            tapCalled.fulfill()
+        }
+        collector.delegate = delegate
+        collector.start()
+        collector.handleTap(sender: recognizer)
+        wait(for: [tapCalled], timeout: 1)
+        collector.stop()
+        
+        XCTAssertNotNil(TrapTapCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+    }
+    
+    func testSwipe() throws {
+        let directionsRecognized = [
+            "down": expectation(description: "Swipe down handler is called"),
+            "up": expectation(description: "Swipe up handler is called"),
+            "left": expectation(description: "Swipe left handler is called"),
+            "right": expectation(description: "Swipe right handler is called"),
+        ]
+        let collector = TrapSwipeCollector()
+        let recognizers = collector.createRecongizers(UIWindow(frame: CGRect.zero))
+        let delegate = TrapDatasourceDelegateMock()
+        delegate.saveHandler = { seq, data in
+            guard case let DataType.array(frame) = data,
+                  case let DataType.int(eventType) = frame[0],
+                  case let DataType.string(direction) = frame[2] else {
+                XCTFail("Data frame is incorrect")
+                return
+            }
+            
+            XCTAssertEqual(eventType, 121)
+            directionsRecognized[direction]?.fulfill()
+        }
+        collector.delegate = delegate
+        collector.start()
+        let directions = [
+            UISwipeGestureRecognizer.Direction.down,
+            UISwipeGestureRecognizer.Direction.left,
+            UISwipeGestureRecognizer.Direction.right,
+            UISwipeGestureRecognizer.Direction.up
+        ]
+        var idx = 0
+        recognizers.forEach { recognizer in
+            UISwipeGestureRecognizer._direction = directions[idx]
+            idx = idx + 1
+            collector.handleSwipe(recognizer as! UISwipeGestureRecognizer)
+        }
+        
+        wait(for: directionsRecognized.values.map { $0 }, timeout: 1)
+        collector.stop()
+        
+        XCTAssertNotNil(TrapSwipeCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+    }
+    
+    func testPin() throws {
+        let pinchCalled = expectation(description: "The pinch handler was called")
+        let collector = TrapPinchCollector()
+        let recognizer = collector.createRecongizers(UIWindow(frame: CGRect.zero)).first as! UIPinchGestureRecognizer
+        let delegate = TrapDatasourceDelegateMock()
+        delegate.saveHandler = { seq, data in
+            guard case let DataType.array(frame) = data,
+                  case let DataType.int(eventType) = frame[0],
+                  case let DataType.double(scale) = frame[2],
+                  case let DataType.double(velocity) = frame[3] else {
+                XCTFail("Data frame is incorrect")
+                return
+            }
+            
+            XCTAssertEqual(eventType, 120)
+            XCTAssertEqual(scale, 3.0)
+            XCTAssertEqual(velocity, 5.0)
+            pinchCalled.fulfill()
+        }
+        collector.delegate = delegate
+        collector.start()
+        
+        recognizer.scale = 3.0
+        collector.handlePinch(gesture: recognizer)
+        
+        wait(for: [pinchCalled], timeout: 1)
+        collector.stop()
+        
+        XCTAssertNotNil(TrapSwipeCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
     }
 }

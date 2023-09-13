@@ -18,7 +18,7 @@ extension NEHotspotHelper {
     }
     
     static func disableMock() {
-        if self != NEHotspotNetwork.self {
+        if self != NEHotspotHelper.self {
             return
         }
         

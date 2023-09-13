@@ -12,11 +12,6 @@ public final class TrapTapCollector: TrapGestureCollector, TrapDatasource {
         TrapTapCollector(withConfig: config)
     }
 
-    // Automatically stop the collector on deinit.
-    deinit {
-        stop()
-    }
-
     @objc func handleTap(sender: UITapGestureRecognizer) {
         let point = sender.location(in: sender.view)
 

@@ -39,6 +39,8 @@ class LocationTest: XCTestCase {
         
         collector.stop()
         
+        XCTAssertEqual(collector.checkConfiguration(), false)
+        XCTAssertEqual(collector.checkPermission(), true)
         XCTAssertNotNil(TrapLocationCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
     }
     
@@ -70,6 +72,8 @@ class LocationTest: XCTestCase {
         
         collector.stop()
         
+        XCTAssertEqual(collector.checkConfiguration(), false)
+        XCTAssertEqual(collector.checkPermission(), true)
         XCTAssertNotNil(TrapPreciseLocationCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
     }
 }
