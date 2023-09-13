@@ -20,7 +20,7 @@ public final class TrapSwipeCollector: TrapGestureCollector, TrapDatasource {
         return [right, down, left, up]
     }
 
-    public static func instance(withConfig config: Config, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapSwipeCollector(withConfig: config)
     }
 

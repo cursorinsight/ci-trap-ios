@@ -23,7 +23,7 @@ public protocol TrapDatasource {
     func stop()
 
     /// Create a new instance of this datasource.
-    static func instance(withConfig: Config, withQueue: OperationQueue) -> TrapDatasource
+    static func instance(withConfig: TrapConfig, withQueue: OperationQueue) -> TrapDatasource
 }
 
 /// The data source delegate which abstracts away data frame storage.

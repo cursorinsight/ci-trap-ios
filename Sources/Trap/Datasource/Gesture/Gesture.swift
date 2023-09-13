@@ -11,7 +11,7 @@ open class TrapGestureCollector {
 
     /// Creates a new instance of the generic gesture
     /// recognizer with the specialized delegate.
-    public init(withConfig _: Config? = nil) {
+    public init(withConfig _: TrapConfig? = nil) {
         recognizers = [Int: [UIGestureRecognizer]]()
     }
 

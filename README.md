@@ -32,7 +32,7 @@ struct ExampleApp: App {
 
     public init() {
         /// Create a new configuration instance.
-        var config = Config()
+        var config = TrapConfig()
         
         /// Change what you need to change
         config.reporter.interval = .seconds(3)

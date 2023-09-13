@@ -114,7 +114,7 @@ final class GestureTests: XCTestCase {
             recognizer.touchesBegan(Set(event._touches!), with: event)
         }
         
-        XCTAssertNotNil(TrapTouchCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapTouchCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
         XCTAssertNotNil(collector.createRecongizers(UIWindow(frame: CGRect.zero)))
         
         collector.stop()
@@ -231,7 +231,7 @@ final class GestureTests: XCTestCase {
         hover._location = CGPoint(x: 42.0, y: 43.0)
         collector.handleHover(hover)
         
-        XCTAssertNotNil(TrapPointerCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapPointerCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
     }
     
     func testStylus() throws {
@@ -335,7 +335,7 @@ final class GestureTests: XCTestCase {
         
         collector.stop()
         
-        XCTAssertNotNil(TrapStylusCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapStylusCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
     }
     
     func testTap() throws {
@@ -363,7 +363,7 @@ final class GestureTests: XCTestCase {
         wait(for: [tapCalled], timeout: 1)
         collector.stop()
         
-        XCTAssertNotNil(TrapTapCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapTapCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
     }
     
     func testSwipe() throws {
@@ -405,7 +405,7 @@ final class GestureTests: XCTestCase {
         wait(for: directionsRecognized.values.map { $0 }, timeout: 1)
         collector.stop()
         
-        XCTAssertNotNil(TrapSwipeCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapSwipeCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
     }
     
     func testPin() throws {
@@ -436,6 +436,6 @@ final class GestureTests: XCTestCase {
         wait(for: [pinchCalled], timeout: 1)
         collector.stop()
         
-        XCTAssertNotNil(TrapSwipeCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapSwipeCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
     }
 }

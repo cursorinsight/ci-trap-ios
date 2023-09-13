@@ -9,7 +9,7 @@ import UIKit
 /// to avoid losing data due to intermittent internet disconnects.
 public class TrapManager {
     /// The internal config of the entire module
-    private let config: Config
+    private let config: TrapConfig
 
     /// The collector data sources which are enabled
     private var collectors = [TrapDatasource]()
@@ -27,11 +27,11 @@ public class TrapManager {
     /// Create an instance of the integration module,
     /// optionally with your configuration
     public init(
-        withConfig config: Config? = nil,
+        withConfig config: TrapConfig? = nil,
         withReporterQueue reporterQueue: OperationQueue? = nil,
         withCollectorQueue collectorQueue: OperationQueue? = nil
     ) throws {
-        self.config = config ?? Config()
+        self.config = config ?? TrapConfig()
         self.collectorQueue = collectorQueue
         storage = TrapStorage(withConfig: config)
 

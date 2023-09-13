@@ -7,8 +7,8 @@ class TrapCachedTransport: TrapTransport {
 
     /// Creates a cached transport instance with the underlying
     /// transport method.
-    public init(with transport: TrapTransport, config: Config? = nil) {
-        let config = config ?? Config()
+    public init(with transport: TrapTransport, config: TrapConfig? = nil) {
+        let config = config ?? TrapConfig()
         underlying = transport
         cache = TrapFileCache(maxSize: config.reporter.maxFileCacheSize)
 

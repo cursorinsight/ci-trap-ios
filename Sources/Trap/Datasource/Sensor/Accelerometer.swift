@@ -5,13 +5,13 @@ let accelerometerEventType = 103
 /// The acceleration sensor data collector.
 public class TrapAccelerometerCollector: TrapDatasource {
     public var delegate: TrapDatasourceDelegate?
-    private var config: Config
+    private var config: TrapConfig
     private let motionManager: CMMotionManager
     private let queue: OperationQueue
 
     /// Creates an accelerometer sensor collector instance.
-    public init(withConfig config: Config? = nil, withQueue queue: OperationQueue? = nil) {
-        self.config = config ?? Config()
+    public init(withConfig config: TrapConfig? = nil, withQueue queue: OperationQueue? = nil) {
+        self.config = config ?? TrapConfig()
         self.queue = queue ?? TrapSensor.queue
         motionManager = CMMotionManager()
 
@@ -63,7 +63,7 @@ public class TrapAccelerometerCollector: TrapDatasource {
         motionManager.stopAccelerometerUpdates()
     }
 
-    public static func instance(withConfig config: Config, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapAccelerometerCollector(withConfig: config, withQueue: queue)
     }
 }
