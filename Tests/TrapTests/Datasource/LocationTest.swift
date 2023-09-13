@@ -38,10 +38,15 @@ class LocationTest: XCTestCase {
         wait(for: sendsCompleted.values.map { $0 }, timeout: 10)
         
         collector.stop()
+
+#if compiler(>=5.4.2)
+        if #available(iOS 14, *) {
+            XCTAssertEqual(collector.checkConfiguration(), false)
+            XCTAssertEqual(collector.checkPermission(), true)
+        }
         
-        XCTAssertEqual(collector.checkConfiguration(), false)
-        XCTAssertEqual(collector.checkPermission(), true)
-        XCTAssertNotNil(TrapLocationCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+#endif
+        XCTAssertNotNil(TrapLocationCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
     }
     
     func testPreciseLocation() {
@@ -71,9 +76,13 @@ class LocationTest: XCTestCase {
         wait(for: sendsCompleted.values.map { $0 }, timeout: 10)
         
         collector.stop()
-        
-        XCTAssertEqual(collector.checkConfiguration(), false)
-        XCTAssertEqual(collector.checkPermission(), true)
-        XCTAssertNotNil(TrapPreciseLocationCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+
+#if compiler(>=5.4.2)
+        if #available(iOS 14, *) {
+            XCTAssertEqual(collector.checkConfiguration(), false)
+            XCTAssertEqual(collector.checkPermission(), true)
+        }
+#endif
+        XCTAssertNotNil(TrapPreciseLocationCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
     }
 }
