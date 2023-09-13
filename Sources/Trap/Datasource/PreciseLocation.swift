@@ -81,10 +81,6 @@ public class TrapPreciseLocationCollector: NSObject, TrapDatasource {
     public static func instance(withConfig config: Config, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapPreciseLocationCollector(withConfig: config)
     }
-
-    deinit {
-        stop()
-    }
 }
 
 /// CLLocationManagerDelegate implementation.
@@ -109,29 +105,16 @@ extension TrapPreciseLocationCollector: CLLocationManagerDelegate {
     public func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             let coords = location.coordinate
-            let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+            let timestamp = Int64(location.timestamp.timeIntervalSince1970 * 1000)
             delegate?.save(sequence: timestamp, data: DataType.array([
                 DataType.int(preciseLocationEventType),
-                DataType.int64(Int64(Date().timeIntervalSince1970 * 1000)),
+                DataType.int64(timestamp),
                 DataType.float(Float(coords.latitude)),
                 DataType.float(Float(coords.longitude)),
                 DataType.float(Float(location.altitude)),
                 DataType.float(Float(location.horizontalAccuracy))
             ]))
         }
-    }
-
-    public func locationManager(manager _: CLLocationManager, didUpdateTo location: CLLocation, from _: CLLocation) {
-        let coords = location.coordinate
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
-        delegate?.save(sequence: timestamp, data: DataType.array([
-            DataType.int(preciseLocationEventType),
-            DataType.int64(Int64(Date().timeIntervalSince1970 * 1000)),
-            DataType.float(Float(coords.latitude)),
-            DataType.float(Float(coords.longitude)),
-            DataType.float(Float(location.altitude)),
-            DataType.float(Float(location.horizontalAccuracy))
-        ]))
     }
 
     public func locationManager(_ manager: CLLocationManager, didFinishDeferredUpdatesWithError error: Error?) {

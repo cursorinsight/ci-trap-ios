@@ -64,8 +64,4 @@ public class TrapGravityCollector: TrapDatasource {
     public static func instance(withConfig config: Config, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapGravityCollector(withConfig: config)
     }
-
-    deinit {
-        stop()
-    }
 }

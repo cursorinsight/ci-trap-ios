@@ -2,7 +2,7 @@
 import XCTest
 
 final class RingQueueTests: XCTestCase {
-    private var queue: RingQueue<Int> = RingQueue(withCapacity: 3)
+    private var queue: ConcurrentRingQueue<Int> = ConcurrentRingQueue(withCapacity: 3)
 
     override func setUp() {
         queue.removeAll()

@@ -22,14 +22,17 @@ jobs:
         run: xcversion select 11.7
       - name: Build and test
         run: |
-          xcodebuild clean test -workspace .swiftpm/xcode/package.xcworkspace \
+          xcodebuild test -workspace .swiftpm/xcode/package.xcworkspace \
             -scheme Trap \
             -sdk iphonesimulator13.7 \
             -destination "platform=iOS Simulator,OS=13.7,name=iPhone 8" \
             -disableAutomaticPackageResolution \
             -usePackageSupportBuiltinSCM \
+            -derivedDataPath .build/ \
+            -resultBundlePath ResultBundle.xcresult \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO
+            CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO \
+            build test
   test-ios16:
     name: Test iOS16
     runs-on: macOS-13
@@ -48,8 +51,16 @@ jobs:
             -disableAutomaticPackageResolution \
             -usePackageSupportBuiltinSCM \
             -enableCodeCoverage YES \
+            -resultBundlePath ResultBundle.xcresult \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO \
             build test
+      - name: Convert to Codecov
+        run: |
+          brew tap a7ex/homebrew-formulae
+          brew install xcresultparser
+          xcresultparser \
+            --output-format cobertura \
+            ResultBundle.xcresult > coverage.xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3

@@ -104,16 +104,13 @@ public class TrapWiFiCollector: TrapDatasource {
 #if compiler(>=5.4.2)
         if #available(iOS 14.0, *) {
             NEHotspotNetwork.fetchCurrent(completionHandler: { [weak self] currentNetwork in
-                guard let self = self else {
-                    assertionFailure("Accelerometer collector empty on update")
-                    return
-                }
+                
                 guard let network = currentNetwork else { return }
                 ssid = network.ssid
                 bssid = network.bssid
 
                 let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
-                self.delegate?.save(sequence: timestamp, data: DataType.array([
+                self?.delegate?.save(sequence: timestamp, data: DataType.array([
                     DataType.int(wifiNetworkEventType),
                     DataType.int64(timestamp),
                     DataType.array([

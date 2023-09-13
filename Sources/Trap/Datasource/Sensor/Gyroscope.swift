@@ -64,8 +64,4 @@ public class TrapGyroscopeCollector: TrapDatasource {
     public static func instance(withConfig config: Config, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapGyroscopeCollector(withConfig: config)
     }
-
-    deinit {
-        stop()
-    }
 }

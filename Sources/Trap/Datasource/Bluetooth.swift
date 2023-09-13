@@ -4,14 +4,16 @@ let bluetoothEventType = 108
 
 /// A collector type which continuously monitors for Bluetooth LE devices.
 @available(iOS 13.1, *)
-public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerDelegate {
+public class TrapBluetoothCollector: CBCentralManagerDelegateProxy, CBCentralManagerDelegateProtocol, TrapDatasource {
     public var delegate: TrapDatasourceDelegate?
-    private var centralManager: CBCentralManager?
+    open var manager: CBCentralManagerProtocol?
     private var peripherals: [UUID]
 
     /// Create a collector which listens for Bluetooth devices.
     public init(withConfig _: Config? = nil) {
         peripherals = [UUID]()
+        super.init()
+        target = self
     }
 
     public func checkConfiguration() -> Bool {
@@ -19,7 +21,7 @@ public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerD
             .infoDictionary?
             .keys
             .contains("NSBluetoothAlwaysUsageDescription") ?? false
-        let available = centralManager?.state != .unsupported
+        let available = manager?.state != .unsupported
 
         return bundleOk && available
     }
@@ -27,7 +29,7 @@ public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerD
     public func checkPermission() -> Bool {
         switch CBManager.authorization {
         case .notDetermined:
-            return false
+            return true
         case .restricted:
             return true
         case .denied:
@@ -40,22 +42,22 @@ public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerD
     }
 
     public func requestPermission(_ success: @escaping () -> Void) {
-        centralManager = centralManager ?? setupCentral()
+        manager = manager ?? setupCentral()
         success()
     }
 
     public func start() {
-        if checkPermission(), centralManager == nil {
-            centralManager = setupCentral()
+        if checkPermission(), manager == nil {
+            manager = setupCentral()
         }
     }
 
     public func stop() {
-        if centralManager?.isScanning != nil {
-            centralManager?.stopScan()
+        if manager?.isScanning != nil {
+            manager?.stopScan()
         }
 
-        centralManager = nil
+        manager = nil
     }
 
     public static func instance(withConfig config: Config, withQueue queue: OperationQueue) -> TrapDatasource {
@@ -69,7 +71,7 @@ public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerD
         )
     }
 
-    public func centralManagerDidUpdateState(_ central: CBCentralManager) {
+    public func centralManagerDidUpdateState(_ central: CBCentralManagerProtocol) {
         switch central.state {
         case .poweredOff:
             break
@@ -82,7 +84,7 @@ public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerD
         case .unknown:
             break
         case .poweredOn:
-            central.registerForConnectionEvents()
+            central.registerForConnectionEvents(options: nil)
             central.scanForPeripherals(withServices: nil, options: nil)
         default:
             break
@@ -92,12 +94,12 @@ public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerD
     /// Implementation of CBCentralManagerDelegate. Called when
     /// a new BLE device is discovered.
     public func centralManager(
-        _: CBCentralManager,
-        didDiscover peripheral: CBPeripheral,
-        advertisementData _: [String: Any],
+        _: CBCentralManagerProtocol,
+        didDiscover peripheral: CBPeripheralProtocol,
+        advertisementData: [String: Any],
         rssi _: NSNumber
     ) {
-        guard let name = peripheral.name else { return }
+        guard let name = peripheral.name ?? advertisementData[CBAdvertisementDataLocalNameKey] as? String else { return }
         let id = peripheral.identifier
 
         if peripherals.contains(id) {
@@ -114,7 +116,7 @@ public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerD
                 DataType.array([
                     DataType.string(name),
                     DataType.string(id.uuidString),
-                    DataType.int(peripheral.state == .connected ? 3 : 1)
+                    DataType.int(peripheral.state == CBPeripheralState.connected ? 3 : 1)
                 ])
             ])
         ]))
@@ -123,9 +125,9 @@ public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerD
     /// Implementation of CBCentralManagerDelegate. Called when
     /// a new BLE device is connected.
     public func centralManager(
-        _: CBCentralManager,
+        _: CBCentralManagerProtocol,
         connectionEventDidOccur _: CBConnectionEvent,
-        for peripheral: CBPeripheral
+        for peripheral: CBPeripheralProtocol
     ) {
         guard let name = peripheral.name else { return }
         let id = peripheral.identifier
@@ -142,5 +144,74 @@ public class TrapBluetoothCollector: NSObject, TrapDatasource, CBCentralManagerD
                 ])
             ])
         ]))
+    }
+}
+
+// The abstraction is needed for testing purposes
+
+public protocol CBCentralManagerProtocol {
+    var state: CBManagerState { get }
+    
+    var isScanning: Bool { get }
+    
+    func stopScan()
+    
+    @available(iOS 13.0, *)
+    func registerForConnectionEvents(options: [CBConnectionEventMatchingOption : Any]?)
+    
+    func scanForPeripherals(withServices serviceUUIDs: [CBUUID]?, options: [String : Any]?)
+}
+
+extension CBCentralManager: CBCentralManagerProtocol {}
+
+public protocol CBPeripheralProtocol {
+    var name: String? { get }
+    
+    var identifier: UUID { get }
+    
+    var state: CBPeripheralState { get }
+}
+
+extension CBPeripheral: CBPeripheralProtocol {}
+
+public protocol CBCentralManagerDelegateProtocol {
+    func centralManagerDidUpdateState(_ central: CBCentralManagerProtocol)
+    
+    func centralManager(
+        _: CBCentralManagerProtocol,
+        didDiscover peripheral: CBPeripheralProtocol,
+        advertisementData: [String: Any],
+        rssi _: NSNumber
+    )
+    
+    func centralManager(
+        _: CBCentralManagerProtocol,
+        connectionEventDidOccur _: CBConnectionEvent,
+        for peripheral: CBPeripheralProtocol
+    )
+}
+
+public class CBCentralManagerDelegateProxy: NSObject, CBCentralManagerDelegate {
+    var target: CBCentralManagerDelegateProtocol?
+    
+    public func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        target?.centralManagerDidUpdateState(central as CBCentralManagerProtocol)
+    }
+    
+    public func centralManager(
+        _ manager: CBCentralManager,
+        didDiscover peripheral: CBPeripheral,
+        advertisementData: [String: Any],
+        rssi: NSNumber
+    ) {
+        target?.centralManager(manager as CBCentralManagerProtocol, didDiscover: peripheral as CBPeripheralProtocol, advertisementData: advertisementData, rssi: rssi)
+    }
+    
+    public func centralManager(
+        _ manager: CBCentralManager,
+        connectionEventDidOccur event: CBConnectionEvent,
+        for peripheral: CBPeripheral
+    ) {
+        target?.centralManager(manager as CBCentralManagerProtocol, connectionEventDidOccur: event, for: peripheral as CBPeripheralProtocol)
     }
 }
