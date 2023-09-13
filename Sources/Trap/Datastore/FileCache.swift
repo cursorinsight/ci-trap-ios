@@ -69,6 +69,15 @@ internal class TrapFileCache {
             }
         }
     }
+    
+    /// Cleans the cache by removing all files from storage.
+    internal func clear() throws {
+        let targets = try files()
+        try targets.forEach { target in
+            let record = Record(target.0)
+            try record.delete()
+        }
+    }
 
     private func urlToPath(url: URL) -> String {
 #if compiler(>=5.4.2)
