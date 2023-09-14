@@ -24,7 +24,7 @@ import Foundation
 ///      }
 /// }
 /// ```
-public struct Config {
+public struct TrapConfig {
     /// The data frame collector ring queue size
     public var queueSize: Int
 

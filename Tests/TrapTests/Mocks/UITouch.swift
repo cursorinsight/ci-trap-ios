@@ -6,18 +6,12 @@ class UITouchMock: UITouch {
         get {
             return _type
         }
-        set {
-            self._type = newValue
-        }
     }
     
     var _timestamp: TimeInterval = TimeInterval.zero
     override var timestamp: TimeInterval {
         get {
             return _timestamp
-        }
-        set {
-            self._timestamp = newValue
         }
     }
     
@@ -26,18 +20,12 @@ class UITouchMock: UITouch {
         get {
             return _force
         }
-        set {
-            self._force = newValue
-        }
     }
     
     var _majorRadius: CGFloat = CGFloat.zero
     override var majorRadius: CGFloat {
         get {
             return _majorRadius
-        }
-        set {
-            self._majorRadius = newValue
         }
     }
     
@@ -52,9 +40,6 @@ class UITouchMock: UITouch {
     override var altitudeAngle: CGFloat {
         get {
             return _altitudeAngle
-        }
-        set {
-            self._altitudeAngle = newValue
         }
     }
     

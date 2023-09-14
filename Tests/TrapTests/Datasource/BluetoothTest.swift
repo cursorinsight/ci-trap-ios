@@ -112,6 +112,7 @@ final class BluetoothTest: XCTestCase {
         
         collector.stop()
         
-        XCTAssertNotNil(TrapBluetoothCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertEqual(collector.checkPermission(), true)
+        XCTAssertNotNil(TrapBluetoothCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
     }
 }

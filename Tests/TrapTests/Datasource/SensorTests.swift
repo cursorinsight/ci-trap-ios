@@ -45,7 +45,9 @@ final class SensorTests: XCTestCase {
         collector.stop()
         wait(for: [stopAccelerometerCalled], timeout: 1)
         
-        XCTAssertNotNil(TrapAccelerometerCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapAccelerometerCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
+        XCTAssertEqual(collector.checkConfiguration(), false)
+        XCTAssertEqual(collector.checkPermission(), true)
     }
     
     func testGravity() throws {
@@ -82,7 +84,9 @@ final class SensorTests: XCTestCase {
         collector.stop()
         wait(for: [stopGravityCalled], timeout: 1)
         
-        XCTAssertNotNil(TrapGravityCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapGravityCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
+        XCTAssertEqual(collector.checkConfiguration(), false)
+        XCTAssertEqual(collector.checkPermission(), true)
     }
     
     func testGyroscope() throws {
@@ -119,7 +123,9 @@ final class SensorTests: XCTestCase {
         collector.stop()
         wait(for: [stopGyroscopeCalled], timeout: 1)
         
-        XCTAssertNotNil(TrapGyroscopeCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapGyroscopeCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
+        XCTAssertEqual(collector.checkConfiguration(), false)
+        XCTAssertEqual(collector.checkPermission(), true)
     }
     
     func testMagnetometer() throws {
@@ -156,6 +162,8 @@ final class SensorTests: XCTestCase {
         collector.stop()
         wait(for: [stopMagnetometerCalled], timeout: 1)
         
-        XCTAssertNotNil(TrapMagnetometerCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapMagnetometerCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
+        XCTAssertEqual(collector.checkConfiguration(), false)
+        XCTAssertEqual(collector.checkPermission(), true)
     }
 }

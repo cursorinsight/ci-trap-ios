@@ -3,14 +3,14 @@ import UIKit
 /// Represents the common storage for all collectors.
 class TrapStorage: TrapDatasourceDelegate, Sequence {
     /// The lib configuration.
-    private let config: Config
+    private let config: TrapConfig
 
     /// The common storage for all collectors.
     private let storage: ConcurrentRingQueue<(Int64, DataType)>
 
     /// Create a new lib common storage instance.
-    public init(withConfig config: Config?) {
-        self.config = config ?? Config()
+    public init(withConfig config: TrapConfig?) {
+        self.config = config ?? TrapConfig()
         storage = ConcurrentRingQueue(withCapacity: self.config.queueSize)
     }
 
@@ -28,7 +28,7 @@ class TrapDatasourceIterator: IteratorProtocol {
     let storage: ConcurrentRingQueue<(Int64, DataType)>
 
     /// Create new instance of the storage iterator.
-    public init(_ storage: ConcurrentRingQueue<(Int64, DataType)>, _: Config) {
+    public init(_ storage: ConcurrentRingQueue<(Int64, DataType)>, _: TrapConfig) {
         self.storage = storage
     }
 

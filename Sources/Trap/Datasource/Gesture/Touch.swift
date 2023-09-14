@@ -22,7 +22,7 @@ public final class TrapTouchCollector: TrapGestureCollector, TrapDatasource {
         return [recognizer]
     }
 
-    public static func instance(withConfig config: Config, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapTouchCollector(withConfig: config)
     }
 

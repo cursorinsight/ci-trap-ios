@@ -9,16 +9,6 @@ extension CLLocationManager {
     static var tasks = [Int : Timer]()
     static let q = DispatchQueue.global(qos: .default)
     
-    static var _accuracy: CLLocationAccuracy = .greatestFiniteMagnitude
-    var desiredAccuracy: CLLocationAccuracy {
-        get {
-            return CLLocationManager._accuracy
-        }
-        set {
-            CLLocationManager._accuracy = newValue
-        }
-    }
-    
     static func enableMock() {
         if self != CLLocationManager.self {
             return
@@ -55,6 +45,18 @@ extension CLLocationManager {
             let newMethod = class_getInstanceMethod(self, newSelector)
             method_exchangeImplementations(originalMethod!, newMethod!)
         }()
+        
+#if compiler(>=5.4.2)
+        if #available(iOS 14, *) {
+            let _: () = {
+                let originalSelector = #selector(CLLocationManager.authorizationStatus)
+                let newSelector = #selector(CLLocationManager.mocked_authorizationStatus)
+                let originalMethod = class_getInstanceMethod(self, originalSelector)
+                let newMethod = class_getInstanceMethod(self, newSelector)
+                method_exchangeImplementations(originalMethod!, newMethod!)
+            }()
+        }
+#endif
     }
     
     static func disableMock() {
@@ -95,6 +97,17 @@ extension CLLocationManager {
             let newMethod = class_getInstanceMethod(self, newSelector)
             method_exchangeImplementations(originalMethod!, newMethod!)
         }()
+#if compiler(>=5.4.2)
+        if #available(iOS 14, *) {
+            let _: () = {
+                let originalSelector = #selector(CLLocationManager.mocked_authorizationStatus)
+                let newSelector = #selector(CLLocationManager.authorizationStatus)
+                let originalMethod = class_getInstanceMethod(self, originalSelector)
+                let newMethod = class_getInstanceMethod(self, newSelector)
+                method_exchangeImplementations(originalMethod!, newMethod!)
+            }()
+        }
+#endif
     }
     
     
@@ -179,5 +192,9 @@ extension CLLocationManager {
         
         CLLocationManager.tasks[self.hashValue]?.invalidate()
         CLLocationManager.tasks.removeValue(forKey: self.hashValue)
+    }
+    
+    @objc func mocked_authorizationStatus() -> CLAuthorizationStatus {
+        return .authorizedAlways
     }
 }

@@ -70,7 +70,9 @@ class WiFiTest: XCTestCase {
         wait(for: [initial, connected], timeout: 1)
         collector.stop()
         
-        XCTAssertNotNil(TrapWiFiCollector.instance(withConfig: Config(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapWiFiCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
+        XCTAssertEqual(collector.checkConfiguration(), false)
+        XCTAssertEqual(collector.checkPermission(), false)
 #endif
     }
 }

@@ -24,7 +24,7 @@ class TrapReporter {
     private let storage: TrapStorage
 
     /// The endpoint of the reporter to use
-    private let config: Config
+    private let config: TrapConfig
 
     /// The streamId of this continuous data stream.
     private var streamId = UUID()
@@ -36,7 +36,7 @@ class TrapReporter {
     public init(
         _ queue: OperationQueue,
         _ storage: TrapStorage,
-        _ config: Config
+        _ config: TrapConfig
     ) {
         self.queue = queue
         self.storage = storage

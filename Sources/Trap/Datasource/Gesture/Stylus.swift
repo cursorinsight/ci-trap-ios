@@ -10,7 +10,7 @@ public final class TrapStylusCollector: TrapGestureCollector, TrapDatasource {
         [StylusGestureRecognizer(self)]
     }
 
-    public static func instance(withConfig config: Config, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapStylusCollector(withConfig: config)
     }
 
