@@ -5,6 +5,7 @@ class MockTransport: TrapTransport {
     var startCalled: (() -> Void)?
     var stopCalled: (() -> Void)?
     var sendCalled: ((_: String) -> Void)?
+    public var error = false
     
     init() {}
     
@@ -18,7 +19,16 @@ class MockTransport: TrapTransport {
     
     func send(data: String, completionHandler: @escaping (Error?) -> Void) {
         sendCalled?(data)
+        if error {
+            completionHandler(MockTransportError.general)
+        } else {
+            completionHandler(nil)
+        }
     }
     
     
+}
+
+enum MockTransportError: Error {
+    case general
 }

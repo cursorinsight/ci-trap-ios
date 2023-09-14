@@ -97,7 +97,7 @@ class TrapWebsocketForegroundOnlyTransport: TrapWebsocketTransport {
 /// websocket stream.
 class TrapWSKeepaliveForegroundTransport: TrapWebsocketForegroundOnlyTransport {
     private var timer: Timer?
-    private var latestSend = Date()
+    internal var latestSend = Date()
     private let timeInterval: TimeInterval = 5
 
     func reconnect() {
