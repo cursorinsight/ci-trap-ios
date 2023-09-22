@@ -38,7 +38,7 @@ struct ExampleApp: App {
         config.reporter.interval = .seconds(3)
         
         /// Set either a websocket endpoint...
-        config.reporter.url "wss://example.com/api/ws"
+        config.reporter.url = "wss://example.com/api/ws"
         
         /// ...or a HTTP POST endpont.
         config.reporter.url = "https://example.com/api/post"
