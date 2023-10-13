@@ -6,8 +6,10 @@ let stylusUpEventType = 112
 
 /// Data collector for stylus touch  gestures
 public final class TrapStylusCollector: TrapGestureCollector, TrapDatasource {
-    override public func createRecongizers(_: UIWindow) -> [UIGestureRecognizer] {
-        [StylusGestureRecognizer(self)]
+    override public func createRecongizers() -> [UIGestureRecognizer] {
+        let recognizer = StylusGestureRecognizer(self)
+        recognizer.delegate = recognizer
+        return [recognizer]
     }
 
     public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
@@ -20,13 +22,12 @@ public final class TrapStylusCollector: TrapGestureCollector, TrapDatasource {
 }
 
 /// The stylus gesture recognizer.
-private class StylusGestureRecognizer: UIGestureRecognizer {
+private class StylusGestureRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     private let collector: TrapStylusCollector
 
     /// Create a Pencil/Stylus gesture recongizer isntance.
     public init(_ collector: TrapStylusCollector) {
         self.collector = collector
-
         super.init(target: nil, action: nil)
     }
 
@@ -112,4 +113,14 @@ private class StylusGestureRecognizer: UIGestureRecognizer {
             ]))
         }
     }
-}
+    
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+    
+    /// This is needed to avoid stealing events from UIKit controls
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard touch.view is UIControl else {return true}
+        touchesBegan(Set([touch]), with: nil)
+        return false
+    }}

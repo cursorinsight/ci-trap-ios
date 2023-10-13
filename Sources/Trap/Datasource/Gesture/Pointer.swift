@@ -7,7 +7,7 @@ let mouseUpEventType = 6
 /// Data collector for pointer  gestures
 @available(iOS 13.4, *)
 public final class TrapPointerCollector: TrapGestureCollector, TrapDatasource {
-    override public func createRecongizers(_: UIWindow) -> [UIGestureRecognizer] {
+    override public func createRecongizers() -> [UIGestureRecognizer] {
         [
             UIHoverGestureRecognizer(target: self, action: #selector(handleHover)),
             PointerClickRecognizer(self)

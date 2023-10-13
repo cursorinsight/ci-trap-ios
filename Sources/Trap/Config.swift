@@ -34,6 +34,9 @@ public struct TrapConfig {
     /// The default collectors to run with `runAll()`
     public var collectors: [TrapDatasource.Type]
 
+    /// Should gesture recognizers be used for touch event collection
+    public var useGestureRecognizer: Bool
+    
     /// How frequent the sampling of the given sensor should be.
     public var accelerationSamplingRate: TimeInterval
 
@@ -111,6 +114,7 @@ public struct TrapConfig {
             TrapTouchCollector.self,
             TrapWiFiCollector.self
         ]
+        useGestureRecognizer = true
         if #available(iOS 13.1, *) {
             collectors.append(TrapBluetoothCollector.self)
         }
@@ -122,4 +126,5 @@ public struct TrapConfig {
         magnetometerSamplingRate = 1.0 / 60.0 // 60 Hz
         gravitySamplingRate = 1.0 / 60.0 // 60 Hz
     }
+    
 }

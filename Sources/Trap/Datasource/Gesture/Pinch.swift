@@ -4,7 +4,7 @@ let pinchEventType = 120
 
 /// Recognizes pinch gestures via the built-in UIPinchGestureRecognizer
 public final class TrapPinchCollector: TrapGestureCollector, TrapDatasource {
-    override public func createRecongizers(_: UIWindow) -> [UIGestureRecognizer] {
+    override public func createRecongizers() -> [UIGestureRecognizer] {
         [UIPinchGestureRecognizer(target: self, action: #selector(handlePinch))]
     }
 

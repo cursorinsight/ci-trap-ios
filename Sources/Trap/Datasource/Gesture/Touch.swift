@@ -16,7 +16,7 @@ let touchStopEventType = 102
 /// more memory if it saves us repeated memory allocations so as to not compromise
 /// performance of the embedding application.
 public final class TrapTouchCollector: TrapGestureCollector, TrapDatasource {
-    override public func createRecongizers(_: UIWindow) -> [UIGestureRecognizer] {
+    override public func createRecongizers() -> [UIGestureRecognizer] {
         let recognizer = TouchRecognizer(self)
         recognizer.delegate = recognizer
         return [recognizer]
@@ -39,7 +39,6 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
 
     public init(_ collector: TrapTouchCollector) {
         self.collector = collector
-
         super.init(target: nil, action: nil)
     }
 
@@ -194,5 +193,12 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
 
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+    
+    /// This is needed to avoid stealing events from UIKit controls
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard touch.view is UIControl else { return true }
+        touchesBegan(Set([touch]), with: nil)
+        return false
     }
 }

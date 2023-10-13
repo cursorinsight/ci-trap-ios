@@ -4,7 +4,7 @@ let swipeEventType = 121
 
 /// Data collector for processed swipe  gestures
 public final class TrapSwipeCollector: TrapGestureCollector, TrapDatasource {
-    override public func createRecongizers(_: UIWindow) -> [UIGestureRecognizer] {
+    override public func createRecongizers() -> [UIGestureRecognizer] {
         let right = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
         right.direction = .right
 
