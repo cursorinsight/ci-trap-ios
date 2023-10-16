@@ -31,23 +31,28 @@ private class StylusGestureRecognizer: UIGestureRecognizer, UIGestureRecognizerD
         super.init(target: nil, action: nil)
     }
 
-    override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         touches.forEach { touch in
             if touch.type != .pencil {
                 return
             }
 
-            let loc = touch.location(in: touch.view)
-            let timestamp = TrapTime.normalizeTime(touch.timestamp)
-            self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
-                DataType.int(stylusDownEventType), // Event Type
-                DataType.int64(timestamp), // Timestamp
-                DataType.double(Double(loc.x)), // X position
-                DataType.double(Double(loc.y)), // Y position
-                DataType.double(Double(touch.force)), // Force
-                DataType.double(Double(touch.altitudeAngle)), // Altitude angle
-                DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
-            ]))
+            let rawTouches = (collector.config?.collectCoalescedStylusEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
+            rawTouches.forEach { touch in
+                let loc = touch.location(in: touch.view)
+                let timestamp = TrapTime.normalizeTime(touch.timestamp)
+                self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
+                    DataType.int(stylusDownEventType), // Event Type
+                    DataType.int64(timestamp), // Timestamp
+                    DataType.double(Double(loc.x)), // X position
+                    DataType.double(Double(loc.y)), // Y position
+                    DataType.double(Double(touch.force)), // Force
+                    DataType.double(Double(touch.altitudeAngle)), // Altitude angle
+                    DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
+                ]))
+            }
         }
     }
 
@@ -57,7 +62,9 @@ private class StylusGestureRecognizer: UIGestureRecognizer, UIGestureRecognizerD
                 return
             }
 
-            let rawTouches = event?.coalescedTouches(for: touch) ?? [touch]
+            let rawTouches = (collector.config?.collectCoalescedStylusEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
             rawTouches.forEach { touch in
                 let loc = touch.location(in: touch.view)
                 let timestamp = TrapTime.normalizeTime(touch.timestamp)
@@ -74,50 +81,60 @@ private class StylusGestureRecognizer: UIGestureRecognizer, UIGestureRecognizerD
         }
     }
 
-    override func touchesEnded(_ touches: Set<UITouch>, with _: UIEvent?) {
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         touches.forEach { touch in
             if touch.type != .pencil {
                 return
             }
 
-            let loc = touch.location(in: touch.view)
-            let timestamp = TrapTime.normalizeTime(touch.timestamp)
-            self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
-                DataType.int(stylusUpEventType), // Event Type
-                DataType.int64(timestamp), // Timestamp
-                DataType.double(Double(loc.x)), // X position
-                DataType.double(Double(loc.y)), // Y position
-                DataType.double(Double(touch.force)), // Force
-                DataType.double(Double(touch.altitudeAngle)), // Altitude angle
-                DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
-            ]))
+            let rawTouches = (collector.config?.collectCoalescedStylusEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
+            rawTouches.forEach { touch in
+                let loc = touch.location(in: touch.view)
+                let timestamp = TrapTime.normalizeTime(touch.timestamp)
+                self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
+                    DataType.int(stylusUpEventType), // Event Type
+                    DataType.int64(timestamp), // Timestamp
+                    DataType.double(Double(loc.x)), // X position
+                    DataType.double(Double(loc.y)), // Y position
+                    DataType.double(Double(touch.force)), // Force
+                    DataType.double(Double(touch.altitudeAngle)), // Altitude angle
+                    DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
+                ]))
+            }
         }
     }
 
-    override func touchesCancelled(_ touches: Set<UITouch>, with _: UIEvent?) {
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         touches.forEach { touch in
             if touch.type != .pencil {
                 return
             }
 
-            let loc = touch.location(in: touch.view)
-            let timestamp = TrapTime.normalizeTime(touch.timestamp)
-            self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
-                DataType.int(stylusUpEventType), // Event Type
-                DataType.int64(timestamp), // Timestamp
-                DataType.double(Double(loc.x)), // X position
-                DataType.double(Double(loc.y)), // Y position
-                DataType.double(Double(touch.force)), // Force
-                DataType.double(Double(touch.altitudeAngle)), // Altitude angle
-                DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
-            ]))
+            let rawTouches = (collector.config?.collectCoalescedStylusEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
+            rawTouches.forEach { touch in
+                let loc = touch.location(in: touch.view)
+                let timestamp = TrapTime.normalizeTime(touch.timestamp)
+                self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
+                    DataType.int(stylusUpEventType), // Event Type
+                    DataType.int64(timestamp), // Timestamp
+                    DataType.double(Double(loc.x)), // X position
+                    DataType.double(Double(loc.y)), // Y position
+                    DataType.double(Double(touch.force)), // Force
+                    DataType.double(Double(touch.altitudeAngle)), // Altitude angle
+                    DataType.double(Double(touch.azimuthAngle(in: touch.view))) // Azimuth angle
+                ]))
+            }
         }
     }
-    
+
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
-    
+
     /// This is needed to avoid stealing events from UIKit controls
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         guard touch.view is UIControl else {return true}

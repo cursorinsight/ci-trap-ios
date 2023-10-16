@@ -8,7 +8,7 @@ open class TrapGestureCollector {
     private var windowDidBecomeVisibleObserver: Any?
     private var windowDidBecomeHiddenObserver: Any?
     private var recognizers: [Int: [UIGestureRecognizer]]
-    private var config: TrapConfig?
+    public var config: TrapConfig?
 
     /// Creates a new instance of the generic gesture
     /// recognizer with the specialized delegate.

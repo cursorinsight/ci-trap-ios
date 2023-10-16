@@ -36,7 +36,7 @@ public struct TrapConfig {
 
     /// Should gesture recognizers be used for touch event collection
     public var useGestureRecognizer: Bool
-    
+
     /// How frequent the sampling of the given sensor should be.
     public var accelerationSamplingRate: TimeInterval
 
@@ -48,6 +48,15 @@ public struct TrapConfig {
 
     /// How frequent the sampling of the given sensor should be.
     public var gravitySamplingRate: TimeInterval
+
+    /// Collect coalesced pointer events
+    public var collectCoalescedPointerEvents: Bool
+
+    /// Collect coalesced stylus events
+    public var collectCoalescedStylusEvents: Bool
+
+    /// Collect coalesced touch events
+    public var collectCoalescedTouchEvents: Bool
 
     // MARK: - The subconfigurations
 
@@ -125,6 +134,10 @@ public struct TrapConfig {
         gyroscopeSamplingRate = 1.0 / 60.0 // 60 Hz
         magnetometerSamplingRate = 1.0 / 60.0 // 60 Hz
         gravitySamplingRate = 1.0 / 60.0 // 60 Hz
+
+        collectCoalescedPointerEvents = true
+        collectCoalescedStylusEvents = true
+        collectCoalescedTouchEvents = true
     }
-    
+
 }

@@ -65,16 +65,21 @@ private class PointerClickRecognizer: UIGestureRecognizer {
                 return
             }
 
-            let button = event?.buttonMask == .secondary ? 1 : 0
-            let loc = touch.location(in: touch.view)
-            let timestamp = TrapTime.normalizeTime(touch.timestamp)
-            self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
-                DataType.int(mouseDownEventType), // Event Type
-                DataType.int64(timestamp), // Timestamp
-                DataType.double(Double(loc.x)), // X position
-                DataType.double(Double(loc.y)), // Y position
-                DataType.int(button)
-            ]))
+            let rawTouches = (collector.config?.collectCoalescedPointerEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
+            rawTouches.forEach { touch in
+                let button = event?.buttonMask == .secondary ? 1 : 0
+                let loc = touch.location(in: touch.view)
+                let timestamp = TrapTime.normalizeTime(touch.timestamp)
+                self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
+                    DataType.int(mouseDownEventType), // Event Type
+                    DataType.int64(timestamp), // Timestamp
+                    DataType.double(Double(loc.x)), // X position
+                    DataType.double(Double(loc.y)), // Y position
+                    DataType.int(button)
+                ]))
+            }
         }
     }
 
@@ -84,16 +89,21 @@ private class PointerClickRecognizer: UIGestureRecognizer {
                 return
             }
 
-            let button = event?.buttonMask == .secondary ? 1 : 0
-            let loc = touch.location(in: touch.view)
-            let timestamp = TrapTime.normalizeTime(touch.timestamp)
-            self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
-                DataType.int(mouseMoveEventType), // Event Type
-                DataType.int64(timestamp), // Timestamp
-                DataType.double(Double(loc.x)), // X position
-                DataType.double(Double(loc.y)), // Y position
-                DataType.int(button)
-            ]))
+            let rawTouches = (collector.config?.collectCoalescedPointerEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
+            rawTouches.forEach { touch in
+                let button = event?.buttonMask == .secondary ? 1 : 0
+                let loc = touch.location(in: touch.view)
+                let timestamp = TrapTime.normalizeTime(touch.timestamp)
+                self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
+                    DataType.int(mouseMoveEventType), // Event Type
+                    DataType.int64(timestamp), // Timestamp
+                    DataType.double(Double(loc.x)), // X position
+                    DataType.double(Double(loc.y)), // Y position
+                    DataType.int(button)
+                ]))
+            }
         }
     }
 
@@ -103,16 +113,21 @@ private class PointerClickRecognizer: UIGestureRecognizer {
                 return
             }
 
-            let button = event?.buttonMask == .secondary ? 1 : 0
-            let loc = touch.location(in: touch.view)
-            let timestamp = TrapTime.normalizeTime(touch.timestamp)
-            self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
-                DataType.int(mouseUpEventType), // Event Type
-                DataType.int64(timestamp), // Timestamp
-                DataType.double(Double(loc.x)), // X position
-                DataType.double(Double(loc.y)), // Y position
-                DataType.int(button)
-            ]))
+            let rawTouches = (collector.config?.collectCoalescedPointerEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
+            rawTouches.forEach { touch in
+                let button = event?.buttonMask == .secondary ? 1 : 0
+                let loc = touch.location(in: touch.view)
+                let timestamp = TrapTime.normalizeTime(touch.timestamp)
+                self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
+                    DataType.int(mouseUpEventType), // Event Type
+                    DataType.int64(timestamp), // Timestamp
+                    DataType.double(Double(loc.x)), // X position
+                    DataType.double(Double(loc.y)), // Y position
+                    DataType.int(button)
+                ]))
+            }
         }
     }
 
@@ -122,16 +137,21 @@ private class PointerClickRecognizer: UIGestureRecognizer {
                 return
             }
 
-            let button = event?.buttonMask == .secondary ? 1 : 0
-            let loc = touch.location(in: touch.view)
-            let timestamp = TrapTime.normalizeTime(touch.timestamp)
-            self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
-                DataType.int(mouseUpEventType), // Event Type
-                DataType.int64(timestamp), // Timestamp
-                DataType.double(Double(loc.x)), // X position
-                DataType.double(Double(loc.y)), // Y position
-                DataType.int(button)
-            ]))
+            let rawTouches = (collector.config?.collectCoalescedPointerEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
+            rawTouches.forEach { touch in
+                let button = event?.buttonMask == .secondary ? 1 : 0
+                let loc = touch.location(in: touch.view)
+                let timestamp = TrapTime.normalizeTime(touch.timestamp)
+                self.collector.delegate?.save(sequence: timestamp, data: DataType.array([
+                    DataType.int(mouseUpEventType), // Event Type
+                    DataType.int64(timestamp), // Timestamp
+                    DataType.double(Double(loc.x)), // X position
+                    DataType.double(Double(loc.y)), // Y position
+                    DataType.int(button)
+                ]))
+            }
         }
     }
 }
