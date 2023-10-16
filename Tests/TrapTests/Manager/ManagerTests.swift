@@ -8,11 +8,11 @@ class ManagerTests: XCTestCase {
         MockCollector.startCalled = { startCalled.fulfill() }
         MockCollector.stopCalled = { stopCalled.fulfill() }
         var config = TrapConfig()
-        config.collectors = []
+        config.defaultDataCollection.collectors = []
         var manager: TrapManager? = try TrapManager(withConfig: config, withReporterQueue: nil, withCollectorQueue: nil)
         let mockCollector = MockCollector()
         try manager!.run(collector: mockCollector)
-        manager = nil
+        manager?.halt(collector: mockCollector)
         
         wait(for: [startCalled, stopCalled], timeout: 1)
     }
@@ -23,10 +23,10 @@ class ManagerTests: XCTestCase {
         MockCollector.startCalled = { startCalled.fulfill() }
         MockCollector.stopCalled = { stopCalled.fulfill() }
         var config = TrapConfig()
-        config.collectors = [MockCollector.self]
+        config.defaultDataCollection.collectors = [MockCollector.self]
         var manager: TrapManager? = try TrapManager(withConfig: config, withReporterQueue: nil, withCollectorQueue: nil)
         try manager?.runAll()
-        manager = nil
+        manager?.haltAll()
         
         wait(for: [startCalled, stopCalled], timeout: 1)
     }

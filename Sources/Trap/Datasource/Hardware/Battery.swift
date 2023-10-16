@@ -4,7 +4,7 @@ let batteryEventType = 132
 public class TrapBatteryCollector: NSObject, TrapDatasource {
     public var delegate: TrapDatasourceDelegate?
 
-    public init(withConfig _: TrapConfig? = nil) {
+    public init(withConfig _: TrapConfig.DataCollection? = nil) {
     }
 
     public func checkConfiguration() -> Bool {
@@ -20,37 +20,13 @@ public class TrapBatteryCollector: NSObject, TrapDatasource {
     }
 
     public func start() {
-        UIDevice.current.isBatteryMonitoringEnabled = true
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(batteryDidChange),
-            name: UIDevice.batteryLevelDidChangeNotification,
-            object: nil)
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(batteryDidChange),
-            name: UIDevice.batteryStateDidChangeNotification,
-            object: nil)
         sendBatteryEvent()
     }
 
     public func stop() {
-        UIDevice.current.isBatteryMonitoringEnabled = true
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIDevice.batteryLevelDidChangeNotification,
-            object: nil)
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIDevice.batteryStateDidChangeNotification,
-            object: nil)
-    }
-
-    @objc func batteryDidChange(_ notification: Notification) {
-        sendBatteryEvent()
     }
     
-    private func sendBatteryEvent() {
+    public func sendBatteryEvent() {
         let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(batteryEventType),
@@ -75,7 +51,7 @@ public class TrapBatteryCollector: NSObject, TrapDatasource {
         }
     }
 
-    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapBatteryCollector(withConfig: config)
     }
 }

@@ -27,7 +27,7 @@ class MockCollector: TrapDatasource {
         MockCollector.stopCalled?()
     }
     
-    static func instance(withConfig: Trap.TrapConfig, withQueue: OperationQueue) -> Trap.TrapDatasource {
+    static func instance(withConfig: Trap.TrapConfig.DataCollection, withQueue: OperationQueue) -> Trap.TrapDatasource {
         MockCollector()
     }
     

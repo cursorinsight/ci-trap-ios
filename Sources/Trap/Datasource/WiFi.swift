@@ -14,7 +14,7 @@ public class TrapWiFiCollector: TrapDatasource {
     private var locationDelegate: TrapWifiDelegate
 
     /// Create a new wifi network collector instance.
-    public init(withConfig _: TrapConfig? = nil) {
+    public init(withConfig _: TrapConfig.DataCollection? = nil) {
         networkMonitor = NWPathMonitor(requiredInterfaceType: .wifi)
         locationManager = CLLocationManager()
         locationDelegate = TrapWifiDelegate()
@@ -93,7 +93,7 @@ public class TrapWiFiCollector: TrapDatasource {
         networkMonitor.cancel()
     }
 
-    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapWiFiCollector(withConfig: config)
     }
 

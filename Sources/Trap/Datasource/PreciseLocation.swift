@@ -10,7 +10,7 @@ public class TrapPreciseLocationCollector: NSObject, TrapDatasource {
 
     /// Create a collector which monitors for high accuracy
     /// location changes.
-    public init(withConfig _: TrapConfig? = nil) {
+    public init(withConfig _: TrapConfig.DataCollection? = nil) {
         locationManager = CLLocationManager()
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
@@ -78,7 +78,7 @@ public class TrapPreciseLocationCollector: NSObject, TrapDatasource {
         locationManager.stopUpdatingLocation()
     }
 
-    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapPreciseLocationCollector(withConfig: config)
     }
 }

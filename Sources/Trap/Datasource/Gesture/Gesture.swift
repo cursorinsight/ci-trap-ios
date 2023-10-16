@@ -8,11 +8,11 @@ open class TrapGestureCollector {
     private var windowDidBecomeVisibleObserver: Any?
     private var windowDidBecomeHiddenObserver: Any?
     private var recognizers: [Int: [UIGestureRecognizer]]
-    public var config: TrapConfig?
+    public var config: TrapConfig.DataCollection?
 
     /// Creates a new instance of the generic gesture
     /// recognizer with the specialized delegate.
-    public init(withConfig config: TrapConfig? = nil) {
+    public init(withConfig config: TrapConfig.DataCollection? = nil) {
         self.config = config
         recognizers = [Int: [UIGestureRecognizer]]()
     }

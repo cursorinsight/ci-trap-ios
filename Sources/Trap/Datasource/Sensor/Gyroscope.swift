@@ -5,13 +5,13 @@ let gyroscopeEventType = 104
 /// The gyroscope sensor data collector.
 public class TrapGyroscopeCollector: TrapDatasource {
     public var delegate: TrapDatasourceDelegate?
-    private var config: TrapConfig
+    private var config: TrapConfig.DataCollection
     private var motionManager: CMMotionManager
     private let queue: OperationQueue
 
     /// Create a gyroscope sensor collector instance.
-    public init(withConfig config: TrapConfig? = nil, withQueue queue: OperationQueue? = nil) {
-        self.config = config ?? TrapConfig()
+    public init(withConfig config: TrapConfig.DataCollection? = nil, withQueue queue: OperationQueue? = nil) {
+        self.config = config ?? TrapConfig.DataCollection()
         self.queue = queue ?? TrapSensor.queue
         motionManager = CMMotionManager()
         motionManager.gyroUpdateInterval = self.config.gyroscopeSamplingRate
@@ -61,7 +61,7 @@ public class TrapGyroscopeCollector: TrapDatasource {
         motionManager.stopGyroUpdates()
     }
 
-    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapGyroscopeCollector(withConfig: config)
     }
 }
