@@ -1,5 +1,9 @@
 import UIKit
 
+let startEventType = 130
+
+let stopEventType = 131
+
 /// The central place to manage the data collection integration.
 /// Supports permission and configuration checks needed for
 /// each data collection source, as well as enabling and disabling
@@ -77,6 +81,17 @@ public class TrapManager {
     public func runAll() throws {
         let collectorQueue = OperationQueue()
         collectorQueue.name = "Trap - Collector"
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appMovedToBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appMovedToForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil)
+        addStartMessage()
 
         try config.collectors.forEach {
             let collector = $0.instance(withConfig: config, withQueue: collectorQueue)
@@ -85,11 +100,46 @@ public class TrapManager {
             }
         }
     }
-
+    
+    @objc func appMovedToForeground() {
+        addStartMessage()
+    }
+    
+    @objc func appMovedToBackground() {
+        addStopMessage()
+    }
+    
     /// Turn off all collectors.
     public func haltAll() {
         collectors.forEach {
             halt(collector: $0)
         }
+        addStopMessage()
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil)
+    }
+
+    /// Adds a start message signalling the start of data collection
+    private func addStartMessage() {
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        storage.save(sequence: timestamp, data: DataType.array([
+            DataType.int(startEventType),
+            DataType.int64(timestamp)
+        ]))
+    }
+
+    /// Adds a stop message signalling the end of data collection
+    private func addStopMessage() {
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        storage.save(sequence: timestamp, data: DataType.array([
+            DataType.int(stopEventType),
+            DataType.int64(timestamp)
+        ]))
     }
 }
