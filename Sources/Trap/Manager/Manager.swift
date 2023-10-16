@@ -5,6 +5,8 @@ let startEventType = 130
 
 let stopEventType = 131
 
+let customEventType = 131
+
 /// The central place to manage the data collection integration.
 /// Supports permission and configuration checks needed for
 /// each data collection source, as well as enabling and disabling
@@ -77,8 +79,7 @@ public class TrapManager {
         target.delegate = storage
         target.start()
         collectors.append(target)
-
-        try reporter.start()
+try reporter.start()
     }
 
     /// Stops and removes a collector from the platform.
@@ -106,7 +107,6 @@ public class TrapManager {
             }
         }
     }
-
 
     /// Turn off all collectors.
     public func haltAll() {
@@ -168,6 +168,33 @@ public class TrapManager {
             selector: #selector(appMovedToForeground),
             name: UIApplication.willEnterForegroundNotification,
             object: nil)
+    }
+
+    public func addCustomMetadata(key: String, value: String) {
+        let metaCollectorKey = String(describing: TrapMetadataCollector.self)
+        guard let metadataCollector = collectors.first(where: {
+            String(describing: $0) == metaCollectorKey
+        }) as? TrapMetadataCollector else { return }
+
+        metadataCollector.addCustom(key: key, value: value)
+    }
+
+    public func removeCustomMetadata(key: String) {
+        let metaCollectorKey = String(describing: TrapMetadataCollector.self)
+        guard let metadataCollector = collectors.first(where: {
+            String(describing: $0) == metaCollectorKey
+        }) as? TrapMetadataCollector else { return }
+
+        metadataCollector.removeCustom(key: key)
+    }
+
+    public func addCustomEvent(custom: DataType) {
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        storage.save(sequence: timestamp, data: DataType.array([
+            DataType.int(customEventType),
+            DataType.int64(timestamp),
+            custom
+        ]))
     }
 
     /// Adds a start message signalling the start of data collection

@@ -68,6 +68,9 @@ public struct TrapConfig {
 
         /// Collect coalesced touch events
         public var collectCoalescedTouchEvents: Bool
+        
+        /// How frequent should the metadata be sent to the server
+        public var metadataSubmissionInterval: TimeInterval
 
         public init() {
             collectors = [
@@ -99,6 +102,8 @@ public struct TrapConfig {
             collectCoalescedPointerEvents = true
             collectCoalescedStylusEvents = true
             collectCoalescedTouchEvents = true
+            
+            metadataSubmissionInterval = 60
         }
         
         public static func ==(lhs: Self, rhs: Self) -> Bool {

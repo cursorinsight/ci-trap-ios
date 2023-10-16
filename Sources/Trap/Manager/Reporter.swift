@@ -105,7 +105,6 @@ class TrapReporter {
 
             let packet = [
                 String(data: try! encoder.encode(this.getHeader()), encoding: .utf8)!,
-                String(data: try! encoder.encode(this.getMetadata()), encoding: .utf8)!,
                 encoded
             ].joined(separator: ",\n")
 
@@ -139,33 +138,5 @@ class TrapReporter {
         sequenceId += 1
 
         return header
-    }
-
-    /// Creates the metadata frame for transport.
-    public func getMetadata() -> DataType {
-        let metadataEventType = 11
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
-        var systemInfo = utsname()
-        uname(&systemInfo)
-        let machineMirror = Mirror(reflecting: systemInfo.version)
-        let identifier = machineMirror.children.reduce("") { identifier, element in
-            guard let value = element.value as? Int8, value != 0 else { return identifier }
-            return identifier + String(UnicodeScalar(UInt8(value)))
-        }
-        let arch = String(identifier.split(separator: "/").last?.split(separator: "_")[1] ?? "<unknown>")
-        let version = UIDevice.current.systemVersion
-        let family = UIDevice.current.systemName
-
-        let metadata = DataType.array([
-            DataType.int(metadataEventType),
-            DataType.int64(timestamp),
-            DataType.dict([
-                "architecture": DataType.string(arch),
-                "family": DataType.string(family),
-                "version": DataType.string(version)
-            ])
-        ])
-
-        return metadata
     }
 }
