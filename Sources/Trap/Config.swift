@@ -143,6 +143,9 @@ public struct TrapConfig {
         /// across app launches.
         public var sessionId: UUID
 
+        /// Compress data sent to server
+        public var compressed: Bool
+
         public init() {
             cachedTransport = true
             maxFileCacheSize = 5_000_000
@@ -160,6 +163,7 @@ public struct TrapConfig {
 
                 return UUID(uuidString: userId)!
             }()
+            compressed = false
         }
     }
 

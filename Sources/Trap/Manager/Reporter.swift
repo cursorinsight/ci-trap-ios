@@ -65,7 +65,7 @@ class TrapReporter {
             case "ws", "wss":
                 return TrapWSKeepaliveForegroundTransport(url)
             case "http", "https":
-                return TrapHttpTransport(url)
+                return TrapHttpTransport(url, config.reporter)
             default:
                 return nil
             }
