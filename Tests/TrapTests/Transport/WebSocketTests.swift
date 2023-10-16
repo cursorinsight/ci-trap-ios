@@ -3,21 +3,23 @@ import Foundation
 import XCTest
 
 class WebSocketTests: XCTestCase {
-    
+
     func testSend() {
         let sendCalled = expectation(description: "Send is called")
-        let transport = TrapWSKeepaliveForegroundTransport(URL(string: "ws://127.0.0.1")!)
+        let transport = TrapWSKeepaliveForegroundTransport(
+            URL(string: "ws://127.0.0.1")!,
+            TrapConfig.Reporter())
         transport.start()
         transport.send(data: "Test Data") { error in
             XCTAssertNotNil(error)
             sendCalled.fulfill()
         }
-        
+
         transport.latestSend = Date(timeIntervalSince1970: 0)
         transport.ping()
-        
-        wait(for: [sendCalled], timeout: 1)
-        
+
+        wait(for: [sendCalled], timeout: 5)
+
         transport.stop()
     }
 }

@@ -146,6 +146,12 @@ public struct TrapConfig {
         /// Compress data sent to server
         public var compressed: Bool
 
+        /// Name of the api key sent in the HTTP header
+        public var apiKeyName: String
+
+        /// Value of the api key sent in the HTTP header
+        public var apiKeyValue: String
+
         public init() {
             cachedTransport = true
             maxFileCacheSize = 5_000_000
@@ -164,6 +170,8 @@ public struct TrapConfig {
                 return UUID(uuidString: userId)!
             }()
             compressed = false
+            apiKeyName = "graboxy-api-key"
+            apiKeyValue = "api-key-value"
         }
     }
 

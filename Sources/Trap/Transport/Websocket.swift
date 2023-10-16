@@ -3,10 +3,13 @@ import UIKit
 /// Transport for data transmission via the websocket protocol.
 class TrapWebsocketTransport: TrapTransport {
     private let url: URL
+    private let config: TrapConfig.Reporter
+
     fileprivate var websocketTask: URLSessionWebSocketTask?
 
-    public init(_ url: URL) {
+    public init(_ url: URL,_ config: TrapConfig.Reporter) {
         self.url = url
+        self.config = config
     }
 
     func start() {
@@ -15,7 +18,10 @@ class TrapWebsocketTransport: TrapTransport {
         }
 
         let session = URLSession(configuration: .default)
-        websocketTask = session.webSocketTask(with: url)
+
+        var request = URLRequest(url: url)
+        request.addValue(config.apiKeyValue, forHTTPHeaderField: config.apiKeyName)
+        websocketTask = session.webSocketTask(with: request)
         websocketTask?.resume()
     }
 

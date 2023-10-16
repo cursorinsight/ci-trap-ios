@@ -21,6 +21,9 @@ class TrapHttpTransport: TrapTransport {
         request.setValue(
             "text/plain; encoding=json\(contentTypePostfix)",
             forHTTPHeaderField: "Content-Type")
+        request.setValue(
+            config.apiKeyValue,
+            forHTTPHeaderField: config.apiKeyName)
 
         var data = data.data(using: .utf8)
         if config.compressed {

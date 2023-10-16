@@ -63,7 +63,7 @@ class TrapReporter {
         let connection: TrapTransport? = {
             switch url.scheme {
             case "ws", "wss":
-                return TrapWSKeepaliveForegroundTransport(url)
+                return TrapWSKeepaliveForegroundTransport(url, config.reporter)
             case "http", "https":
                 return TrapHttpTransport(url, config.reporter)
             default:
