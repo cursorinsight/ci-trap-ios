@@ -121,7 +121,8 @@ public struct TrapConfig {
             TrapSwipeCollector.self,
             TrapTapCollector.self,
             TrapTouchCollector.self,
-            TrapWiFiCollector.self
+            TrapWiFiCollector.self,
+            TrapBatteryCollector.self,
         ]
         useGestureRecognizer = true
         if #available(iOS 13.1, *) {
