@@ -5,16 +5,13 @@ let magneticEventType = 106
 /// The magnetometer sensor data collector.
 public class TrapMagnetometerCollector: TrapDatasource {
     public var delegate: TrapDatasourceDelegate?
-    private var config: TrapConfig.DataCollection
     private var motionManager: CMMotionManager
     private let queue: OperationQueue
 
     /// Creates a magnetometer data collector instance.
-    public init(withConfig config: TrapConfig.DataCollection? = nil, withQueue queue: OperationQueue? = nil) {
-        self.config = config ?? TrapConfig.DataCollection()
+    public init(withQueue queue: OperationQueue? = nil) {
         self.queue = queue ?? TrapSensor.queue
         motionManager = CMMotionManager()
-        motionManager.magnetometerUpdateInterval = self.config.magnetometerSamplingRate
     }
 
     public func checkConfiguration() -> Bool {
@@ -35,7 +32,8 @@ public class TrapMagnetometerCollector: TrapDatasource {
         success()
     }
 
-    public func start() {
+    public func start(withConfig config: TrapConfig.DataCollection) {
+        motionManager.magnetometerUpdateInterval = config.magnetometerSamplingRate
         motionManager.startMagnetometerUpdates(to: queue) { [weak self] data, _ in
             guard let this = self else {
                 assertionFailure("Accelerometer collector empty on update")
@@ -61,7 +59,7 @@ public class TrapMagnetometerCollector: TrapDatasource {
         motionManager.stopMagnetometerUpdates()
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapMagnetometerCollector(withConfig: config)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapMagnetometerCollector()
     }
 }

@@ -33,7 +33,7 @@ class LocationTest: XCTestCase {
             sendsCompleted[output]?.fulfill()
         }
         collector.delegate = delegate
-        collector.start()
+        collector.start(withConfig: TrapConfig.DataCollection())
         
         wait(for: sendsCompleted.values.map { $0 }, timeout: 10)
         
@@ -46,7 +46,7 @@ class LocationTest: XCTestCase {
         }
         
 #endif
-        XCTAssertNotNil(TrapLocationCollector.instance(withConfig: TrapConfig.DataCollection(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapLocationCollector.instance(withQueue: OperationQueue()))
     }
     
     func testPreciseLocation() {
@@ -71,7 +71,7 @@ class LocationTest: XCTestCase {
             sendsCompleted[output]?.fulfill()
         }
         collector.delegate = delegate
-        collector.start()
+        collector.start(withConfig: TrapConfig.DataCollection())
         
         wait(for: sendsCompleted.values.map { $0 }, timeout: 10)
         
@@ -83,6 +83,6 @@ class LocationTest: XCTestCase {
             XCTAssertEqual(collector.checkPermission(), true)
         }
 #endif
-        XCTAssertNotNil(TrapPreciseLocationCollector.instance(withConfig: TrapConfig.DataCollection(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapPreciseLocationCollector.instance(withQueue: OperationQueue()))
     }
 }

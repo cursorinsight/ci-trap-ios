@@ -38,8 +38,8 @@ public final class TrapPointerCollector: TrapGestureCollector, TrapDatasource {
         ]))
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapPointerCollector(withConfig: config)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapPointerCollector()
     }
 
     deinit {

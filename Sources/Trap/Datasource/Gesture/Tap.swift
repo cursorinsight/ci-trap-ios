@@ -8,8 +8,8 @@ public final class TrapTapCollector: TrapGestureCollector, TrapDatasource {
         [UITapGestureRecognizer(target: self, action: #selector(handleTap))]
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapTapCollector(withConfig: config)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapTapCollector()
     }
 
     @objc func handleTap(sender: UITapGestureRecognizer) {

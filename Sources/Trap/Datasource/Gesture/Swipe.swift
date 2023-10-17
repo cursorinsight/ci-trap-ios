@@ -20,8 +20,8 @@ public final class TrapSwipeCollector: TrapGestureCollector, TrapDatasource {
         return [right, down, left, up]
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapSwipeCollector(withConfig: config)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapSwipeCollector()
     }
 
     @objc func handleSwipe(_ sender: UISwipeGestureRecognizer) {

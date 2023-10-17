@@ -12,8 +12,7 @@ open class TrapGestureCollector {
 
     /// Creates a new instance of the generic gesture
     /// recognizer with the specialized delegate.
-    public init(withConfig config: TrapConfig.DataCollection? = nil) {
-        self.config = config
+    public init() {
         recognizers = [Int: [UIGestureRecognizer]]()
     }
 
@@ -78,8 +77,9 @@ open class TrapGestureCollector {
         success() // Automatically succeeds, no permission needed
     }
 
-    public func start() {
-        if (config?.useGestureRecognizer ?? true) {
+    public func start(withConfig config: TrapConfig.DataCollection) {
+        self.config = config
+        if (config.useGestureRecognizer) {
             subscribeForGestureRecognizer()
         } else {
             addRecognizersToDispatcher()

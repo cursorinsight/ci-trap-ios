@@ -22,8 +22,8 @@ public final class TrapTouchCollector: TrapGestureCollector, TrapDatasource {
         return [recognizer]
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapTouchCollector(withConfig: config)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapTouchCollector()
     }
 
     // Stop the collector on deinit.

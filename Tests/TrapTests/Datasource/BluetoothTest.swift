@@ -103,7 +103,7 @@ final class BluetoothTest: XCTestCase {
         }
         collector.delegate = delegate
         collector.manager = manager
-        collector.start()
+        collector.start(withConfig: TrapConfig.DataCollection())
 
         collector.centralManager(manager, didDiscover: peripheral, advertisementData: [:], rssi: NSNumber(0))
         collector.centralManager(manager, connectionEventDidOccur: CBConnectionEvent(rawValue: 0)!, for: peripheral2)
@@ -113,6 +113,6 @@ final class BluetoothTest: XCTestCase {
         collector.stop()
         
         XCTAssertEqual(collector.checkPermission(), true)
-        XCTAssertNotNil(TrapBluetoothCollector.instance(withConfig: TrapConfig.DataCollection(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapBluetoothCollector.instance(withQueue: OperationQueue()))
     }
 }

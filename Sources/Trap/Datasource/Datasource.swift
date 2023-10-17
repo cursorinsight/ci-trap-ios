@@ -17,13 +17,13 @@ public protocol TrapDatasource {
     func requestPermission(_ success: @escaping () -> Void)
 
     /// Start the data collection process for this particular collector.
-    func start()
+    func start(withConfig: TrapConfig.DataCollection)
 
     /// Stop the data collection process for this particular collector.
     func stop()
-    
+
     /// Create a new instance of this datasource.
-    static func instance(withConfig: TrapConfig.DataCollection, withQueue: OperationQueue) -> TrapDatasource
+    static func instance(withQueue: OperationQueue) -> TrapDatasource
 }
 
 /// The data source delegate which abstracts away data frame storage.
