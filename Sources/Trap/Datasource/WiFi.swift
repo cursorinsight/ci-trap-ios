@@ -104,12 +104,12 @@ public class TrapWiFiCollector: TrapDatasource {
 #if compiler(>=5.4.2)
         if #available(iOS 14.0, *) {
             NEHotspotNetwork.fetchCurrent(completionHandler: { [weak self] currentNetwork in
-                
+
                 guard let network = currentNetwork else { return }
                 ssid = network.ssid
                 bssid = network.bssid
 
-                let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+                let timestamp = TrapTime.getCurrentTime()
                 self?.delegate?.save(sequence: timestamp, data: DataType.array([
                     DataType.int(wifiNetworkEventType),
                     DataType.int64(timestamp),
@@ -124,7 +124,7 @@ public class TrapWiFiCollector: TrapDatasource {
             if case let networks? = NEHotspotHelper.supportedNetworkInterfaces() as? [NEHotspotNetwork] {
                 for network in networks {
                     if ssid != network.ssid, bssid != network.bssid {
-                        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+                        let timestamp = TrapTime.getCurrentTime()
                         self.delegate?.save(sequence: timestamp, data: DataType.array([
                             DataType.int(wifiNetworkEventType),
                             DataType.int64(timestamp),
@@ -145,7 +145,7 @@ public class TrapWiFiCollector: TrapDatasource {
                     if let interfaceInfo = CNCopyCurrentNetworkInfo(interface as! CFString) as NSDictionary? {
                         ssid = interfaceInfo[kCNNetworkInfoKeySSID as String] as? String
                         bssid = interfaceInfo[kCNNetworkInfoKeyBSSID as String] as? String
-                        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+                        let timestamp = TrapTime.getCurrentTime()
                         delegate?.save(sequence: timestamp, data: DataType.array([
                             DataType.int(wifiNetworkEventType),
                             DataType.int64(timestamp),

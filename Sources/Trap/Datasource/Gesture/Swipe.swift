@@ -25,7 +25,7 @@ public final class TrapSwipeCollector: TrapGestureCollector, TrapDatasource {
     }
 
     @objc func handleSwipe(_ sender: UISwipeGestureRecognizer) {
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         var direction = ""
         switch sender.direction {
         case .right:

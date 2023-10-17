@@ -28,7 +28,7 @@ public final class TrapPointerCollector: TrapGestureCollector, TrapDatasource {
         }
 
         let loc = sender.location(in: view)
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(mouseMoveEventType), // Event Type
             DataType.int64(timestamp), // Timestamp

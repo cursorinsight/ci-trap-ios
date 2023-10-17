@@ -25,9 +25,9 @@ public class TrapBatteryCollector: NSObject, TrapDatasource {
 
     public func stop() {
     }
-    
+
     public func sendBatteryEvent() {
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(batteryEventType),
             DataType.int64(timestamp),
@@ -35,7 +35,7 @@ public class TrapBatteryCollector: NSObject, TrapDatasource {
             DataType.int(getBatteryState())
         ]))
     }
-    
+
     private func getBatteryState() -> Int {
         switch UIDevice.current.batteryState{
         case .unplugged:

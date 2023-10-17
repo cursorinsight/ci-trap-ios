@@ -9,7 +9,7 @@ public final class TrapPinchCollector: TrapGestureCollector, TrapDatasource {
     }
 
     @objc func handlePinch(gesture: UIPinchGestureRecognizer) {
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(pinchEventType),
             DataType.int64(timestamp),

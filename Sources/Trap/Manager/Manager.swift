@@ -187,7 +187,7 @@ public class TrapManager {
     }
 
     public func addCustomEvent(custom: DataType) {
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         storage.save(sequence: timestamp, data: DataType.array([
             DataType.int(customEventType),
             DataType.int64(timestamp),
@@ -197,7 +197,7 @@ public class TrapManager {
 
     /// Adds a start message signalling the start of data collection
     private func addStartMessage() {
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         storage.save(sequence: timestamp, data: DataType.array([
             DataType.int(startEventType),
             DataType.int64(timestamp),
@@ -208,7 +208,7 @@ public class TrapManager {
 
     /// Adds a stop message signalling the end of data collection
     private func addStopMessage() {
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         storage.save(sequence: timestamp, data: DataType.array([
             DataType.int(stopEventType),
             DataType.int64(timestamp)

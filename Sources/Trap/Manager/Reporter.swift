@@ -125,7 +125,7 @@ class TrapReporter {
     /// Creates the header for transport.
     public func getHeader() -> DataType {
         let headerEventType = -1
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         let header = DataType.array([
             DataType.int(headerEventType),
             DataType.int64(timestamp),

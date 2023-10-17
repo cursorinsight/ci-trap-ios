@@ -15,7 +15,7 @@ public final class TrapTapCollector: TrapGestureCollector, TrapDatasource {
     @objc func handleTap(sender: UITapGestureRecognizer) {
         let point = sender.location(in: sender.view)
 
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(tapEventType),
             DataType.int64(timestamp),
