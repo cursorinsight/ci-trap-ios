@@ -1,7 +1,8 @@
 # Trap Library for iOS and iPadOS
 This library can collect various device and user data, forwarding it to a specified endpoint. The following data collectors are bundled with this version:
 * Accelerometer
-* Bluetooth LE devices connected / peered 
+* Battery status
+* Bluetooth LE devices connected / peered
 * Approximate and precise location
 * Gravity
 * Gyroscope
@@ -15,7 +16,7 @@ This library can collect various device and user data, forwarding it to a specif
 * WiFi connection and available networks
 
 ## How to use it
-You can check out the Example app for a working example 
+You can check out the Example app for a working example
 ```swift
 import Trap
 import SwiftUI
@@ -33,24 +34,24 @@ struct ExampleApp: App {
     public init() {
         /// Create a new configuration instance.
         var config = TrapConfig()
-        
+
         /// Change what you need to change
         config.reporter.interval = .seconds(3)
-        
+
         /// Set either a websocket endpoint...
         config.reporter.url = "wss://example.com/api/ws"
-        
+
         /// ...or a HTTP POST endpont.
         config.reporter.url = "https://example.com/api/post"
-        
+
         trapManager = try! TrapManager(withConfig: config)
 
         // Run all default collectors...
         trapManager.runAll()
-        
+
         // ...or use it one collector at a time
         let collector = TrapPreciseLocationCollector(withConfig: config)
-        
+
         /// Check if the build-time conditions are ready for the collector
         if collector.checkConfiguration() {
             /// Check if the runtime permissions are given.
@@ -64,6 +65,37 @@ struct ExampleApp: App {
         }
     }
 }
+```
+
+## Providing custom metadata
+
+You can add and remove custom metadata (a string key-value pair), that will be
+sent to the server periodically as part of the metadata event.
+
+Adding metadata:
+
+```
+trapManager.addCustomMetadata(key: "some-key", value: "some-value")
+```
+
+Removing metadata:
+
+```
+trapManager.removeCustomMetadata(key: "some-key")
+```
+
+## Sending event with custom data
+
+You can add a custom event to the event stream as well. This can contain simple
+types (string, numeric, boolean) and complex types (dictionaries and arrays of
+these types) as well.
+
+```
+trapManager.addCustomEvent(custom: DataType.dict([
+    "some-key": DataType.string("some-data"),
+    "numeric-data-key": DataType.int(2),
+    "boolean-data-key": DataType.bool(false)
+]))
 ```
 
 ## Permissions
@@ -87,7 +119,7 @@ Requires runtime permission from the user.
 ### WiFi
 The following entitlements needed for full operation:
 * com.apple.developer.networking.HotspotHelper
-* com.apple.developer.networking.wifi-info 
+* com.apple.developer.networking.wifi-info
 
 The HotspotHelper entitlement can only be acquired if Apple approves your application (available at [Apple HotspotHelper Request](https://developer.apple.com/contact/request/hotspot-helper/)).
 
