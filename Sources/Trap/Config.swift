@@ -24,7 +24,7 @@ import Foundation
 ///      }
 /// }
 /// ```
-public struct TrapConfig {
+public struct TrapConfig : Codable {
     /// The data frame collector ring queue size
     public var queueSize: Int
 
@@ -41,9 +41,9 @@ public struct TrapConfig {
 
     // MARK: - The subconfigurations
 
-    public struct DataCollection : Equatable {
+    public struct DataCollection : Equatable, Codable {
         /// The default collectors to run with `runAll()`
-        public var collectors: [TrapDatasource.Type]
+        public var collectors: [String]
 
         /// Should gesture recognizers be used for touch event collection
         public var useGestureRecognizer: Bool
@@ -74,25 +74,25 @@ public struct TrapConfig {
 
         public init() {
             collectors = [
-                TrapAccelerometerCollector.self,
-                TrapGravityCollector.self,
-                TrapGyroscopeCollector.self,
-                TrapLocationCollector.self,
-                TrapMagnetometerCollector.self,
-                TrapPinchCollector.self,
-                TrapStylusCollector.self,
-                TrapSwipeCollector.self,
-                TrapTapCollector.self,
-                TrapTouchCollector.self,
-                TrapWiFiCollector.self,
-                TrapBatteryCollector.self
+                String(reflecting: TrapAccelerometerCollector.self),
+                String(reflecting: TrapGravityCollector.self),
+                String(reflecting: TrapGyroscopeCollector.self),
+                String(reflecting: TrapLocationCollector.self),
+                String(reflecting: TrapMagnetometerCollector.self),
+                String(reflecting: TrapPinchCollector.self),
+                String(reflecting: TrapStylusCollector.self),
+                String(reflecting: TrapSwipeCollector.self),
+                String(reflecting: TrapTapCollector.self),
+                String(reflecting: TrapTouchCollector.self),
+                String(reflecting: TrapWiFiCollector.self),
+                String(reflecting: TrapBatteryCollector.self)
             ]
             useGestureRecognizer = true
             if #available(iOS 13.1, *) {
-                collectors.append(TrapBluetoothCollector.self)
+                collectors.append(String(reflecting: TrapBluetoothCollector.self))
             }
             if #available(iOS 13.4, *) {
-                collectors.append(TrapPointerCollector.self)
+                collectors.append(String(reflecting: TrapPointerCollector.self))
             }
             accelerationSamplingRate = 1.0 / 60.0 // 60 Hz
             gyroscopeSamplingRate = 1.0 / 60.0 // 60 Hz
@@ -116,7 +116,7 @@ public struct TrapConfig {
             lhs.gravitySamplingRate == rhs.gravitySamplingRate &&
             lhs.magnetometerSamplingRate == rhs.magnetometerSamplingRate &&
             lhs.collectors.elementsEqual(rhs.collectors, by: { firstType, secondType in
-                return String(describing: firstType) == String(describing: secondType)
+                return String(reflecting: firstType) == String(reflecting: secondType)
             })
         }
         
@@ -124,7 +124,7 @@ public struct TrapConfig {
 
     /// The configuration for the reporter task serializing
     /// and sending the collected data through the transport.
-    public struct Reporter {
+    public struct Reporter : Codable {
         /// Whether to cache data packets on the device
         /// when conntection to the remote server cannot be
         /// established.
@@ -189,13 +189,14 @@ public struct TrapConfig {
         defaultDataCollection = DataCollection()
         lowBatteryDataCollection = DataCollection()
         lowBatteryDataCollection.collectors = [
-            TrapLocationCollector.self,
-            TrapStylusCollector.self,
-            TrapTouchCollector.self,
-            TrapBatteryCollector.self,
+            String(reflecting: TrapLocationCollector.self),
+            String(reflecting: TrapStylusCollector.self),
+            String(reflecting: TrapTouchCollector.self),
+            String(reflecting: TrapBatteryCollector.self),
+            String(reflecting: TrapMetadataCollector.self)
         ]
         if #available(iOS 13.4, *) {
-            lowBatteryDataCollection.collectors.append(TrapPointerCollector.self)
+            lowBatteryDataCollection.collectors.append(String(reflecting: TrapPointerCollector.self))
         }
      
         lowBatteryDataCollection.collectCoalescedPointerEvents = false
@@ -204,17 +205,26 @@ public struct TrapConfig {
 
         lowDataDataCollection = DataCollection()
         lowDataDataCollection.collectors = [
-            TrapLocationCollector.self,
-            TrapStylusCollector.self,
-            TrapTouchCollector.self,
-            TrapBatteryCollector.self,
+            String(reflecting: TrapLocationCollector.self),
+            String(reflecting: TrapStylusCollector.self),
+            String(reflecting: TrapTouchCollector.self),
+            String(reflecting: TrapBatteryCollector.self),
+            String(reflecting: TrapMetadataCollector.self)
         ]
         if #available(iOS 13.4, *) {
-            lowDataDataCollection.collectors.append(TrapPointerCollector.self)
+            lowDataDataCollection.collectors.append(String(reflecting: TrapPointerCollector.self))
         }
         lowDataDataCollection.collectCoalescedPointerEvents = false
         lowDataDataCollection.collectCoalescedStylusEvents = false
         lowDataDataCollection.collectCoalescedTouchEvents = false
     }
-
+    
+    public static func loadConfigFromUrl(_ url: URL, completion: @escaping ((TrapConfig?) -> Void)) {
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data {
+                let res = try! JSONDecoder().decode(TrapConfig.self, from: data)
+                completion(res)
+            }
+        }.resume()
+    }
 }

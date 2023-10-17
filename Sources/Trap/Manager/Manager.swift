@@ -19,7 +19,7 @@ public class TrapManager {
     private let config: TrapConfig
 
     /// The collector data sources which are enabled
-    private var collectors = [TrapDatasource]()
+    private var collectors = [String: TrapDatasource]()
 
     /// Represents the common storage for all collectors
     /// and the reporter task.
@@ -78,15 +78,15 @@ public class TrapManager {
 
         target.delegate = storage
         target.start()
-        collectors.append(target)
-try reporter.start()
+        collectors[String(reflecting: type(of: target))] = target
+        try reporter.start()
     }
 
     /// Stops and removes a collector from the platform.
     public func halt(collector: TrapDatasource) {
-        let id = String(describing: collector)
-        guard collectors.contains(where: { String(describing: $0) == id }) else { return }
-        collectors = collectors.filter { String(describing: $0) != id }
+        let key = String(reflecting: type(of: collector))
+        guard let existingCollector = collectors[key] else { return }
+        collectors.removeValue(forKey: key)
         collector.stop()
     }
 
@@ -101,16 +101,20 @@ try reporter.start()
         currentDataCollectionConfig = getDataCollectionConfig()
 
         try currentDataCollectionConfig.collectors.forEach {
-            let collector = $0.instance(withConfig: currentDataCollectionConfig, withQueue: collectorQueue)
-            if collector.checkConfiguration(), collector.checkPermission() {
-                try run(collector: collector)
+            if let collectorType = (NSClassFromString($0) as? TrapDatasource.Type) {
+                let collector = collectorType.instance(
+                    withConfig: currentDataCollectionConfig,
+                    withQueue: collectorQueue)
+                if collector.checkConfiguration(), collector.checkPermission() {
+                    try run(collector: collector)
+                }
             }
         }
     }
 
     /// Turn off all collectors.
     public func haltAll() {
-        collectors.forEach {
+        collectors.values.forEach {
             halt(collector: $0)
         }
         addStopMessage()
@@ -171,20 +175,14 @@ try reporter.start()
     }
 
     public func addCustomMetadata(key: String, value: String) {
-        let metaCollectorKey = String(describing: TrapMetadataCollector.self)
-        guard let metadataCollector = collectors.first(where: {
-            String(describing: $0) == metaCollectorKey
-        }) as? TrapMetadataCollector else { return }
-
+        let metaCollectorKey = String(reflecting: TrapMetadataCollector.self)
+        guard let metadataCollector = (collectors[metaCollectorKey] as? TrapMetadataCollector) else { return }
         metadataCollector.addCustom(key: key, value: value)
     }
 
     public func removeCustomMetadata(key: String) {
-        let metaCollectorKey = String(describing: TrapMetadataCollector.self)
-        guard let metadataCollector = collectors.first(where: {
-            String(describing: $0) == metaCollectorKey
-        }) as? TrapMetadataCollector else { return }
-
+        let metaCollectorKey = String(reflecting: TrapMetadataCollector.self)
+        guard let metadataCollector = (collectors[metaCollectorKey] as? TrapMetadataCollector) else { return }
         metadataCollector.removeCustom(key: key)
     }
 
@@ -229,9 +227,8 @@ try reporter.start()
             UIDevice.current.batteryLevel >= 0
         maybeModifyConfigAndRestartCollection()
 
-        guard let batteryCollector = collectors.first(where: {
-            String(describing: $0) == String(describing: TrapBatteryCollector.self)
-        }) as? TrapBatteryCollector else { return }
+        let batteryCollectorKey = String(reflecting: TrapBatteryCollector.self)
+        guard let batteryCollector = (collectors[batteryCollectorKey] as? TrapBatteryCollector) else { return }
         batteryCollector.sendBatteryEvent()
     }
 

@@ -21,7 +21,7 @@ public protocol TrapDatasource {
 
     /// Stop the data collection process for this particular collector.
     func stop()
-
+    
     /// Create a new instance of this datasource.
     static func instance(withConfig: TrapConfig.DataCollection, withQueue: OperationQueue) -> TrapDatasource
 }
