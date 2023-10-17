@@ -29,7 +29,7 @@ public class TrapManager {
     private let reporter: TrapReporter
 
     /// The optional colelctor operation queue.
-    private let collectorQueue: OperationQueue?
+    private let collectorQueue: OperationQueue
 
     private var networkMonitor: NWPathMonitor?
 
@@ -51,7 +51,9 @@ public class TrapManager {
     ) throws {
         self.config = config ?? TrapConfig()
         self.currentDataCollectionConfig = config?.defaultDataCollection ?? TrapConfig().defaultDataCollection
-        self.collectorQueue = collectorQueue
+        self.collectorQueue = collectorQueue ?? OperationQueue()
+        self.collectorQueue.name = "Trap - Collector"
+
         storage = TrapStorage(withConfig: config)
 
         let reporterQueue = reporterQueue ?? {
@@ -62,6 +64,10 @@ public class TrapManager {
         }()
         reporterQueue.maxConcurrentOperationCount = 1
         reporter = TrapReporter(reporterQueue, storage, self.config)
+
+        currentDataCollectionConfig.collectors.forEach {
+            createCollector($0)
+        }
     }
 
     // Turn off any running collectors at the
@@ -74,41 +80,52 @@ public class TrapManager {
     /// Adds a collector instance to the platform and
     /// starts it immediately.
     public func run(collector: TrapDatasource) throws {
-        var target = collector
+        guard !config.isDataCollectionDisabled() else { return }
 
-        target.delegate = storage
-        target.start()
-        collectors[String(reflecting: type(of: target))] = target
-        try reporter.start()
+        let key = String(reflecting: type(of: collector))
+        if (collectors.index(forKey: key) == nil) {
+            var target = collector
+            target.delegate = storage
+            target.start(withConfig: currentDataCollectionConfig)
+            collectors[key] = target
+            try reporter.start()
+        }
     }
 
     /// Stops and removes a collector from the platform.
     public func halt(collector: TrapDatasource) {
         let key = String(reflecting: type(of: collector))
-        guard let existingCollector = collectors[key] else { return }
+        guard collectors[key] != nil else { return }
         collectors.removeValue(forKey: key)
         collector.stop()
     }
 
     /// Try to run all possible collectors
     public func runAll() throws {
-        let collectorQueue = OperationQueue()
-        collectorQueue.name = "Trap - Collector"
+        guard !config.isDataCollectionDisabled() else { return }
 
         subscribeOnNotifications()
         addStartMessage()
+        try reporter.start()
 
         currentDataCollectionConfig = getDataCollectionConfig()
-
-        try currentDataCollectionConfig.collectors.forEach {
-            if let collectorType = (NSClassFromString($0) as? TrapDatasource.Type) {
-                let collector = collectorType.instance(
-                    withConfig: currentDataCollectionConfig,
-                    withQueue: collectorQueue)
+        currentDataCollectionConfig.collectors.forEach {
+            if (collectors.index(forKey: $0) == nil) {
+                createCollector($0)
+            }
+            if let collector = collectors[$0] {
                 if collector.checkConfiguration(), collector.checkPermission() {
-                    try run(collector: collector)
+                    collector.start(withConfig: currentDataCollectionConfig)
                 }
             }
+        }
+    }
+
+    /// Creates a collector
+    private func createCollector(_ key: String) {
+        if let collectorType = (NSClassFromString(key) as? TrapDatasource.Type) {
+            let collector = collectorType.instance(withQueue: collectorQueue) as TrapDatasource
+            collectors[key] = collector
         }
     }
 

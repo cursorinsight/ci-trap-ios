@@ -4,9 +4,6 @@ let batteryEventType = 132
 public class TrapBatteryCollector: NSObject, TrapDatasource {
     public var delegate: TrapDatasourceDelegate?
 
-    public init(withConfig _: TrapConfig.DataCollection? = nil) {
-    }
-
     public func checkConfiguration() -> Bool {
         true // Always OK
     }
@@ -19,7 +16,7 @@ public class TrapBatteryCollector: NSObject, TrapDatasource {
         success() // Automatically succeeds, no permission needed
     }
 
-    public func start() {
+    public func start(withConfig _: TrapConfig.DataCollection) {
         sendBatteryEvent()
     }
 
@@ -51,7 +48,7 @@ public class TrapBatteryCollector: NSObject, TrapDatasource {
         }
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapBatteryCollector(withConfig: config)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapBatteryCollector()
     }
 }

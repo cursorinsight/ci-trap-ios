@@ -10,7 +10,7 @@ public class TrapBluetoothCollector: CBCentralManagerDelegateProxy, CBCentralMan
     private var peripherals: [UUID]
 
     /// Create a collector which listens for Bluetooth devices.
-    public init(withConfig _: TrapConfig.DataCollection? = nil) {
+    public override init() {
         peripherals = [UUID]()
         super.init()
         target = self
@@ -46,7 +46,7 @@ public class TrapBluetoothCollector: CBCentralManagerDelegateProxy, CBCentralMan
         success()
     }
 
-    public func start() {
+    public func start(withConfig _: TrapConfig.DataCollection) {
         if checkPermission(), manager == nil {
             manager = setupCentral()
         }
@@ -60,8 +60,8 @@ public class TrapBluetoothCollector: CBCentralManagerDelegateProxy, CBCentralMan
         manager = nil
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapBluetoothCollector(withConfig: config)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapBluetoothCollector()
     }
 
     private func setupCentral() -> CBCentralManager {

@@ -66,11 +66,11 @@ class WiFiTest: XCTestCase {
         }
         let collector = TrapWiFiCollector()
         collector.delegate = delegate
-        collector.start()
+        collector.start(withConfig: TrapConfig.DataCollection())
         wait(for: [initial, connected], timeout: 1)
         collector.stop()
         
-        XCTAssertNotNil(TrapWiFiCollector.instance(withConfig: TrapConfig.DataCollection(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapWiFiCollector.instance( withQueue: OperationQueue()))
         XCTAssertEqual(collector.checkConfiguration(), false)
         XCTAssertEqual(collector.checkPermission(), false)
 #endif

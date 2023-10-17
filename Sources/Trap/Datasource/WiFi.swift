@@ -14,7 +14,7 @@ public class TrapWiFiCollector: TrapDatasource {
     private var locationDelegate: TrapWifiDelegate
 
     /// Create a new wifi network collector instance.
-    public init(withConfig _: TrapConfig.DataCollection? = nil) {
+    public init() {
         networkMonitor = NWPathMonitor(requiredInterfaceType: .wifi)
         locationManager = CLLocationManager()
         locationDelegate = TrapWifiDelegate()
@@ -83,7 +83,7 @@ public class TrapWiFiCollector: TrapDatasource {
         locationManager.requestWhenInUseAuthorization()
     }
 
-    public func start() {
+    public func start(withConfig _: TrapConfig.DataCollection) {
         networkMonitor.pathUpdateHandler = { [weak self] _ in self?.getSSID() }
         networkMonitor.start(queue: DispatchQueue.global(qos: .background))
         getSSID()
@@ -93,8 +93,8 @@ public class TrapWiFiCollector: TrapDatasource {
         networkMonitor.cancel()
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapWiFiCollector(withConfig: config)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapWiFiCollector()
     }
 
     private func getSSID() {

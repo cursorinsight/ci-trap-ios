@@ -9,7 +9,7 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
 
     /// Create a collector which monitors for high accuracy
     /// location changes.
-    public init(withConfig _: TrapConfig.DataCollection? = nil) {
+    public override init() {
         locationManager = CLLocationManager()
 
 #if compiler(>=5.4.2)
@@ -68,7 +68,7 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
             }
         }
 #endif
-        
+
         return false
     }
 
@@ -77,7 +77,7 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
         locationManager.requestWhenInUseAuthorization()
     }
 
-    public func start() {
+    public func start(withConfig _: TrapConfig.DataCollection) {
         locationManager.delegate = self
         locationManager.startMonitoringSignificantLocationChanges()
     }
@@ -87,8 +87,8 @@ public class TrapLocationCollector: NSObject, TrapDatasource {
         locationManager.delegate = nil
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapLocationCollector(withConfig: config)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapLocationCollector()
     }
 }
 

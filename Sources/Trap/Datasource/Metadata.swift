@@ -5,19 +5,17 @@ import UIKit
 let metadataEventType = 11
 
 public class TrapMetadataCollector: TrapDatasource {
+
     public var delegate: TrapDatasourceDelegate?
 
     private let queue: OperationQueue
-
-    private let config: TrapConfig.DataCollection?
 
     private var reporterTask: Cancellable?
 
     private var customMap: [String : String] = [:]
 
-    public init(withConfig config: TrapConfig.DataCollection? = nil, withQueue queue: OperationQueue) {
+    public init(withQueue queue: OperationQueue) {
         self.queue = queue
-        self.config = config
     }
 
     public func checkConfiguration() -> Bool {
@@ -32,10 +30,10 @@ public class TrapMetadataCollector: TrapDatasource {
         success() // Automatically succeeds, no permission needed
     }
 
-    public func start() {
+    public func start(withConfig config: TrapConfig.DataCollection) {
         reporterTask = queue.schedule(
             after: .init(Date(timeIntervalSinceNow: 1)),
-            interval: .seconds(config?.metadataSubmissionInterval ?? 60)
+            interval: .seconds(config.metadataSubmissionInterval ?? 60)
         ) { [weak self] in
             guard let this = self else {
                 assertionFailure("Metadata task becomes empty while running")
@@ -49,8 +47,8 @@ public class TrapMetadataCollector: TrapDatasource {
         reporterTask?.cancel()
     }
 
-    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
-        TrapMetadataCollector(withConfig: config, withQueue: queue)
+    public static func instance(withQueue queue: OperationQueue) -> TrapDatasource {
+        TrapMetadataCollector(withQueue: queue)
     }
 
     public func addCustom(key: String, value: String) {
