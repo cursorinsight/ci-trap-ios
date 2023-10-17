@@ -16,13 +16,13 @@ let touchStopEventType = 102
 /// more memory if it saves us repeated memory allocations so as to not compromise
 /// performance of the embedding application.
 public final class TrapTouchCollector: TrapGestureCollector, TrapDatasource {
-    override public func createRecongizers(_: UIWindow) -> [UIGestureRecognizer] {
+    override public func createRecongizers() -> [UIGestureRecognizer] {
         let recognizer = TouchRecognizer(self)
         recognizer.delegate = recognizer
         return [recognizer]
     }
 
-    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapTouchCollector(withConfig: config)
     }
 
@@ -39,7 +39,6 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
 
     public init(_ collector: TrapTouchCollector) {
         self.collector = collector
-
         super.init(target: nil, action: nil)
     }
 
@@ -69,18 +68,20 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     }
 
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touches.forEach { coalescedTouch in
+        touches.forEach { touch in
             let fingerIndex: Int = {
                 if let idx = fingers.firstIndex(of: nil) {
-                    fingers[idx] = coalescedTouch
+                    fingers[idx] = touch
                     return Int(idx)
                 } else {
-                    fingers.append(coalescedTouch)
+                    fingers.append(touch)
                     return fingers.count
                 }
             }()
 
-            let rawTouch = event?.coalescedTouches(for: coalescedTouch) ?? [coalescedTouch]
+            let rawTouch = (collector.config?.collectCoalescedTouchEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
             rawTouch.forEach { _touchesBegan($0, fingerIndex) }
         }
     }
@@ -110,9 +111,11 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     }
 
     public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touches.forEach { coalescedTouch in
-            let fingerIndex = fingers.firstIndex(of: coalescedTouch) ?? -1
-            let rawTouches = event?.coalescedTouches(for: coalescedTouch) ?? [coalescedTouch]
+        touches.forEach { touch in
+            let fingerIndex = fingers.firstIndex(of: touch) ?? -1
+            let rawTouches = (collector.config?.collectCoalescedTouchEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
             rawTouches.forEach { _touchesMoved($0, fingerIndex) }
             if fingerIndex < 0 {
                 print("touchesMoved: Unknown touch")
@@ -145,9 +148,11 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     }
 
     public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touches.forEach { coalescedTouch in
-            let fingerIndex = fingers.firstIndex(of: coalescedTouch) ?? -1
-            let rawTouches = event?.coalescedTouches(for: coalescedTouch) ?? [coalescedTouch]
+        touches.forEach { touch in
+            let fingerIndex = fingers.firstIndex(of: touch) ?? -1
+            let rawTouches = (collector.config?.collectCoalescedTouchEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
             rawTouches.forEach { _touchesEnded($0, fingerIndex) }
             if fingerIndex > -1 {
                 fingers[fingerIndex] = nil
@@ -164,7 +169,7 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
                 return
             }
         }
-#endif        
+#endif
 
         let loc = touch.location(in: nil)
         let timestamp = TrapTime.normalizeTime(touch.timestamp)
@@ -180,9 +185,11 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     }
 
     public override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        touches.forEach { coalescedTouch in
-            let fingerIndex = fingers.firstIndex(of: coalescedTouch) ?? -1
-            let rawTouches = event?.coalescedTouches(for: coalescedTouch) ?? [coalescedTouch]
+        touches.forEach { touch in
+            let fingerIndex = fingers.firstIndex(of: touch) ?? -1
+            let rawTouches = (collector.config?.collectCoalescedTouchEvents ?? false)
+                ? event?.coalescedTouches(for: touch) ?? [touch]
+                : [touch]
             rawTouches.forEach { _touchesCancelled($0, fingerIndex) }
             if fingerIndex > -1 {
                 fingers[fingerIndex] = nil
@@ -194,5 +201,12 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
 
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+
+    /// This is needed to avoid stealing events from UIKit controls
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard touch.view is UIControl else { return true }
+        touchesBegan(Set([touch]), with: nil)
+        return false
     }
 }

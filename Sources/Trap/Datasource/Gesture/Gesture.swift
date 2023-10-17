@@ -8,10 +8,12 @@ open class TrapGestureCollector {
     private var windowDidBecomeVisibleObserver: Any?
     private var windowDidBecomeHiddenObserver: Any?
     private var recognizers: [Int: [UIGestureRecognizer]]
+    public var config: TrapConfig.DataCollection?
 
     /// Creates a new instance of the generic gesture
     /// recognizer with the specialized delegate.
-    public init(withConfig _: TrapConfig? = nil) {
+    public init(withConfig config: TrapConfig.DataCollection? = nil) {
+        self.config = config
         recognizers = [Int: [UIGestureRecognizer]]()
     }
 
@@ -19,7 +21,7 @@ open class TrapGestureCollector {
     /// instance MUST be created for every call, otherwise it will not work
     ///
     /// It's an empty function, subclasses must override it.
-    public func createRecongizers(_: UIWindow) -> [UIGestureRecognizer] {
+    public func createRecongizers() -> [UIGestureRecognizer] {
         []
     }
 
@@ -41,7 +43,7 @@ open class TrapGestureCollector {
     func addRecognizers(to window: UIWindow) {
         if !filteredForPrivacy(window) {
             guard recognizers[window.hash] != nil else {
-                recognizers[window.hash] = createRecongizers(window)
+                recognizers[window.hash] = createRecongizers()
                 for recognizer in recognizers[window.hash]! {
                     window.addGestureRecognizer(recognizer)
                 }
@@ -77,6 +79,40 @@ open class TrapGestureCollector {
     }
 
     public func start() {
+        if (config?.useGestureRecognizer ?? true) {
+            subscribeForGestureRecognizer()
+        } else {
+            addRecognizersToDispatcher()
+        }
+    }
+
+    public func stop() {
+        if (config?.useGestureRecognizer ?? true) {
+            unsubscribeFromGestureRecognizer()
+        } else {
+            removeRecognizersFromDispatcher()
+        }
+    }
+
+    private func addRecognizersToDispatcher() {
+        recognizers[-1] = createRecongizers()
+        for recognizer in recognizers[-1]! {
+            TrapWindowEventDispatcher.shared.addGestureRecognizer(recognizer)
+        }
+    }
+
+    private func removeRecognizersFromDispatcher() {
+        guard let recognizers = recognizers[-1] else {
+            return
+        }
+
+        for recognizer in recognizers {
+            TrapWindowEventDispatcher.shared.removeGestureRecognizer(recognizer)
+        }
+        self.recognizers.removeValue(forKey: -1)
+    }
+
+    private func subscribeForGestureRecognizer() {
         // Register an observer for windows that are becoming visible later
         windowDidBecomeVisibleObserver = NotificationCenter.default.addObserver(
             forName: UIWindow.didBecomeVisibleNotification,
@@ -107,7 +143,7 @@ open class TrapGestureCollector {
         }
     }
 
-    public func stop() {
+    private func unsubscribeFromGestureRecognizer() {
         // Remove the window hidden/visible notifications
         if case let observer? = windowDidBecomeVisibleObserver {
             NotificationCenter.default.removeObserver(observer)

@@ -46,7 +46,7 @@ class LocationTest: XCTestCase {
         }
         
 #endif
-        XCTAssertNotNil(TrapLocationCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapLocationCollector.instance(withConfig: TrapConfig.DataCollection(), withQueue: OperationQueue()))
     }
     
     func testPreciseLocation() {
@@ -83,6 +83,6 @@ class LocationTest: XCTestCase {
             XCTAssertEqual(collector.checkPermission(), true)
         }
 #endif
-        XCTAssertNotNil(TrapPreciseLocationCollector.instance(withConfig: TrapConfig(), withQueue: OperationQueue()))
+        XCTAssertNotNil(TrapPreciseLocationCollector.instance(withConfig: TrapConfig.DataCollection(), withQueue: OperationQueue()))
     }
 }

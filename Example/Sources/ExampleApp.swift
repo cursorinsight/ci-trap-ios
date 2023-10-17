@@ -13,7 +13,7 @@ struct ExampleApp: App {
 
     public init() {
         /// Create a new configuration instance.
-        var config = Config()
+        var config = TrapConfig()
 
         /// Change what you need to change
         config.reporter.interval = .seconds(3)
@@ -28,5 +28,13 @@ struct ExampleApp: App {
 
         // Run all default collectors...
         try? trapManager.runAll()
+
+        trapManager.addCustomMetadata(key: "some-key", value: "some-value")
+
+        trapManager.addCustomEvent(custom: DataType.dict([
+            "some-key": DataType.string("some-data"),
+            "numeric-data-key": DataType.int(2),
+            "boolean-data-key": DataType.bool(false)
+        ]))
     }
 }

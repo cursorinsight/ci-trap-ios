@@ -4,12 +4,12 @@ let pinchEventType = 120
 
 /// Recognizes pinch gestures via the built-in UIPinchGestureRecognizer
 public final class TrapPinchCollector: TrapGestureCollector, TrapDatasource {
-    override public func createRecongizers(_: UIWindow) -> [UIGestureRecognizer] {
+    override public func createRecongizers() -> [UIGestureRecognizer] {
         [UIPinchGestureRecognizer(target: self, action: #selector(handlePinch))]
     }
 
     @objc func handlePinch(gesture: UIPinchGestureRecognizer) {
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(pinchEventType),
             DataType.int64(timestamp),
@@ -18,7 +18,7 @@ public final class TrapPinchCollector: TrapGestureCollector, TrapDatasource {
         ]))
     }
 
-    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapPinchCollector(withConfig: config)
     }
 

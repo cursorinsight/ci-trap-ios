@@ -1,4 +1,11 @@
 import UIKit
+import Network
+
+let startEventType = 130
+
+let stopEventType = 131
+
+let customEventType = 131
 
 /// The central place to manage the data collection integration.
 /// Supports permission and configuration checks needed for
@@ -12,7 +19,7 @@ public class TrapManager {
     private let config: TrapConfig
 
     /// The collector data sources which are enabled
-    private var collectors = [TrapDatasource]()
+    private var collectors = [String: TrapDatasource]()
 
     /// Represents the common storage for all collectors
     /// and the reporter task.
@@ -24,6 +31,17 @@ public class TrapManager {
     /// The optional colelctor operation queue.
     private let collectorQueue: OperationQueue?
 
+    private var networkMonitor: NWPathMonitor?
+
+    /// Is in low data mode
+    private var inLowDataMode: Bool = false
+
+    /// Has low battery
+    private var hasLowBattery: Bool = false
+
+    // Currently used data collection config
+    private var currentDataCollectionConfig : TrapConfig.DataCollection
+
     /// Create an instance of the integration module,
     /// optionally with your configuration
     public init(
@@ -32,6 +50,7 @@ public class TrapManager {
         withCollectorQueue collectorQueue: OperationQueue? = nil
     ) throws {
         self.config = config ?? TrapConfig()
+        self.currentDataCollectionConfig = config?.defaultDataCollection ?? TrapConfig().defaultDataCollection
         self.collectorQueue = collectorQueue
         storage = TrapStorage(withConfig: config)
 
@@ -42,7 +61,6 @@ public class TrapManager {
             return queue
         }()
         reporterQueue.maxConcurrentOperationCount = 1
-
         reporter = TrapReporter(reporterQueue, storage, self.config)
     }
 
@@ -60,16 +78,15 @@ public class TrapManager {
 
         target.delegate = storage
         target.start()
-        collectors.append(target)
-
+        collectors[String(reflecting: type(of: target))] = target
         try reporter.start()
     }
 
     /// Stops and removes a collector from the platform.
     public func halt(collector: TrapDatasource) {
-        let id = String(describing: collector)
-
-        collectors = collectors.filter { String(describing: $0) == id }
+        let key = String(reflecting: type(of: collector))
+        guard let existingCollector = collectors[key] else { return }
+        collectors.removeValue(forKey: key)
         collector.stop()
     }
 
@@ -78,18 +95,169 @@ public class TrapManager {
         let collectorQueue = OperationQueue()
         collectorQueue.name = "Trap - Collector"
 
-        try config.collectors.forEach {
-            let collector = $0.instance(withConfig: config, withQueue: collectorQueue)
-            if collector.checkConfiguration(), collector.checkPermission() {
-                try run(collector: collector)
+        subscribeOnNotifications()
+        addStartMessage()
+
+        currentDataCollectionConfig = getDataCollectionConfig()
+
+        try currentDataCollectionConfig.collectors.forEach {
+            if let collectorType = (NSClassFromString($0) as? TrapDatasource.Type) {
+                let collector = collectorType.instance(
+                    withConfig: currentDataCollectionConfig,
+                    withQueue: collectorQueue)
+                if collector.checkConfiguration(), collector.checkPermission() {
+                    try run(collector: collector)
+                }
             }
         }
     }
 
     /// Turn off all collectors.
     public func haltAll() {
-        collectors.forEach {
+        collectors.values.forEach {
             halt(collector: $0)
         }
+        addStopMessage()
+        unsubscribeFromNotifications()
+    }
+
+    private func unsubscribeFromNotifications() {
+        networkMonitor?.cancel()
+        networkMonitor = nil
+
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil)
+
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIDevice.batteryLevelDidChangeNotification,
+            object: nil)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIDevice.batteryStateDidChangeNotification,
+            object: nil)
+    }
+
+    private func subscribeOnNotifications() {
+        networkMonitor = NWPathMonitor()
+        networkMonitor?.pathUpdateHandler = networkChanged
+        networkMonitor?.start(queue: DispatchQueue(label: "Monitor"))
+
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(batteryDidChange),
+            name: UIDevice.batteryLevelDidChangeNotification,
+            object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(batteryDidChange),
+            name: UIDevice.batteryStateDidChangeNotification,
+            object: nil)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appMovedToBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appMovedToForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil)
+    }
+
+    public func addCustomMetadata(key: String, value: String) {
+        let metaCollectorKey = String(reflecting: TrapMetadataCollector.self)
+        guard let metadataCollector = (collectors[metaCollectorKey] as? TrapMetadataCollector) else { return }
+        metadataCollector.addCustom(key: key, value: value)
+    }
+
+    public func removeCustomMetadata(key: String) {
+        let metaCollectorKey = String(reflecting: TrapMetadataCollector.self)
+        guard let metadataCollector = (collectors[metaCollectorKey] as? TrapMetadataCollector) else { return }
+        metadataCollector.removeCustom(key: key)
+    }
+
+    public func addCustomEvent(custom: DataType) {
+        let timestamp = TrapTime.getCurrentTime()
+        storage.save(sequence: timestamp, data: DataType.array([
+            DataType.int(customEventType),
+            DataType.int64(timestamp),
+            custom
+        ]))
+    }
+
+    /// Adds a start message signalling the start of data collection
+    private func addStartMessage() {
+        let timestamp = TrapTime.getCurrentTime()
+        storage.save(sequence: timestamp, data: DataType.array([
+            DataType.int(startEventType),
+            DataType.int64(timestamp),
+            DataType.bool(inLowDataMode),
+            DataType.bool(hasLowBattery)
+        ]))
+    }
+
+    /// Adds a stop message signalling the end of data collection
+    private func addStopMessage() {
+        let timestamp = TrapTime.getCurrentTime()
+        storage.save(sequence: timestamp, data: DataType.array([
+            DataType.int(stopEventType),
+            DataType.int64(timestamp)
+        ]))
+    }
+
+    private func networkChanged(path: NWPath){
+        self.inLowDataMode = path.isConstrained || path.isExpensive
+        maybeModifyConfigAndRestartCollection()
+    }
+
+    @objc func batteryDidChange(_ notification: Notification) {
+        self.hasLowBattery =
+            (UIDevice.current.batteryState == .unplugged || UIDevice.current.batteryState == .unknown) &&
+            UIDevice.current.batteryLevel < config.lowBatteryThreshold &&
+            UIDevice.current.batteryLevel >= 0
+        maybeModifyConfigAndRestartCollection()
+
+        let batteryCollectorKey = String(reflecting: TrapBatteryCollector.self)
+        guard let batteryCollector = (collectors[batteryCollectorKey] as? TrapBatteryCollector) else { return }
+        batteryCollector.sendBatteryEvent()
+    }
+
+    private func maybeModifyConfigAndRestartCollection() {
+        if (getDataCollectionConfig() != currentDataCollectionConfig) {
+            haltAll()
+            do {
+                try runAll()
+            } catch {
+                print("Could not restart collectors")
+            }
+        }
+    }
+
+    private func getDataCollectionConfig() -> TrapConfig.DataCollection {
+        if (inLowDataMode) {
+            return config.lowDataDataCollection
+        }
+        if (hasLowBattery) {
+            return config.lowBatteryDataCollection
+        }
+        return config.defaultDataCollection
+    }
+
+    @objc func appMovedToForeground() {
+        addStartMessage()
+    }
+
+    @objc func appMovedToBackground() {
+        addStopMessage()
     }
 }

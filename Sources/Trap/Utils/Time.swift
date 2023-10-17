@@ -19,4 +19,8 @@ class TrapTime {
 
         return Int64((bootTime!.timeIntervalSince1970 + time) * 1000)
     }
+
+    public static func getCurrentTime() -> Int64 {
+        return Int64(Date().timeIntervalSince1970 * 1000)
+    }
 }

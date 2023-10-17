@@ -10,7 +10,7 @@ public class TrapBluetoothCollector: CBCentralManagerDelegateProxy, CBCentralMan
     private var peripherals: [UUID]
 
     /// Create a collector which listens for Bluetooth devices.
-    public init(withConfig _: TrapConfig? = nil) {
+    public init(withConfig _: TrapConfig.DataCollection? = nil) {
         peripherals = [UUID]()
         super.init()
         target = self
@@ -60,7 +60,7 @@ public class TrapBluetoothCollector: CBCentralManagerDelegateProxy, CBCentralMan
         manager = nil
     }
 
-    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapBluetoothCollector(withConfig: config)
     }
 
@@ -108,7 +108,7 @@ public class TrapBluetoothCollector: CBCentralManagerDelegateProxy, CBCentralMan
             peripherals.append(id)
         }
 
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(bluetoothEventType),
             DataType.int64(timestamp),
@@ -132,10 +132,10 @@ public class TrapBluetoothCollector: CBCentralManagerDelegateProxy, CBCentralMan
         guard let name = peripheral.name else { return }
         let id = peripheral.identifier
 
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         delegate?.save(sequence: timestamp, data: DataType.array([
             DataType.int(bluetoothEventType),
-            DataType.int64(Int64(Date().timeIntervalSince1970 * 1000)),
+            DataType.int64(timestamp),
             DataType.array([
                 DataType.array([
                     DataType.string(name),
@@ -151,14 +151,14 @@ public class TrapBluetoothCollector: CBCentralManagerDelegateProxy, CBCentralMan
 
 public protocol CBCentralManagerProtocol {
     var state: CBManagerState { get }
-    
+
     var isScanning: Bool { get }
-    
+
     func stopScan()
-    
+
     @available(iOS 13.0, *)
     func registerForConnectionEvents(options: [CBConnectionEventMatchingOption : Any]?)
-    
+
     func scanForPeripherals(withServices serviceUUIDs: [CBUUID]?, options: [String : Any]?)
 }
 
@@ -166,9 +166,9 @@ extension CBCentralManager: CBCentralManagerProtocol {}
 
 public protocol CBPeripheralProtocol {
     var name: String? { get }
-    
+
     var identifier: UUID { get }
-    
+
     var state: CBPeripheralState { get }
 }
 
@@ -176,14 +176,14 @@ extension CBPeripheral: CBPeripheralProtocol {}
 
 public protocol CBCentralManagerDelegateProtocol {
     func centralManagerDidUpdateState(_ central: CBCentralManagerProtocol)
-    
+
     func centralManager(
         _: CBCentralManagerProtocol,
         didDiscover peripheral: CBPeripheralProtocol,
         advertisementData: [String: Any],
         rssi _: NSNumber
     )
-    
+
     func centralManager(
         _: CBCentralManagerProtocol,
         connectionEventDidOccur _: CBConnectionEvent,
@@ -193,11 +193,11 @@ public protocol CBCentralManagerDelegateProtocol {
 
 public class CBCentralManagerDelegateProxy: NSObject, CBCentralManagerDelegate {
     var target: CBCentralManagerDelegateProtocol?
-    
+
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         target?.centralManagerDidUpdateState(central as CBCentralManagerProtocol)
     }
-    
+
     public func centralManager(
         _ manager: CBCentralManager,
         didDiscover peripheral: CBPeripheral,
@@ -206,7 +206,7 @@ public class CBCentralManagerDelegateProxy: NSObject, CBCentralManagerDelegate {
     ) {
         target?.centralManager(manager as CBCentralManagerProtocol, didDiscover: peripheral as CBPeripheralProtocol, advertisementData: advertisementData, rssi: rssi)
     }
-    
+
     public func centralManager(
         _ manager: CBCentralManager,
         connectionEventDidOccur event: CBConnectionEvent,

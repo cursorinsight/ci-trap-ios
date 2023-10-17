@@ -4,7 +4,7 @@ let swipeEventType = 121
 
 /// Data collector for processed swipe  gestures
 public final class TrapSwipeCollector: TrapGestureCollector, TrapDatasource {
-    override public func createRecongizers(_: UIWindow) -> [UIGestureRecognizer] {
+    override public func createRecongizers() -> [UIGestureRecognizer] {
         let right = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
         right.direction = .right
 
@@ -20,12 +20,12 @@ public final class TrapSwipeCollector: TrapGestureCollector, TrapDatasource {
         return [right, down, left, up]
     }
 
-    public static func instance(withConfig config: TrapConfig, withQueue queue: OperationQueue) -> TrapDatasource {
+    public static func instance(withConfig config: TrapConfig.DataCollection, withQueue queue: OperationQueue) -> TrapDatasource {
         TrapSwipeCollector(withConfig: config)
     }
 
     @objc func handleSwipe(_ sender: UISwipeGestureRecognizer) {
-        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let timestamp = TrapTime.getCurrentTime()
         var direction = ""
         switch sender.direction {
         case .right:
