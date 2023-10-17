@@ -29,7 +29,9 @@ public struct TrapConfig : Codable {
     public var queueSize: Int
 
     public var lowBatteryThreshold: Float
-    
+
+    public var sessionIdFilter: String?
+
     /// The configuration for the reporter task.
     public var reporter: Reporter
 
@@ -68,7 +70,7 @@ public struct TrapConfig : Codable {
 
         /// Collect coalesced touch events
         public var collectCoalescedTouchEvents: Bool
-        
+
         /// How frequent should the metadata be sent to the server
         public var metadataSubmissionInterval: TimeInterval
 
@@ -102,10 +104,10 @@ public struct TrapConfig : Codable {
             collectCoalescedPointerEvents = true
             collectCoalescedStylusEvents = true
             collectCoalescedTouchEvents = true
-            
+
             metadataSubmissionInterval = 60
         }
-        
+
         public static func ==(lhs: Self, rhs: Self) -> Bool {
             lhs.collectCoalescedPointerEvents == rhs.collectCoalescedPointerEvents &&
             lhs.collectCoalescedStylusEvents == rhs.collectCoalescedStylusEvents &&
@@ -119,7 +121,7 @@ public struct TrapConfig : Codable {
                 return String(reflecting: firstType) == String(reflecting: secondType)
             })
         }
-        
+
     }
 
     /// The configuration for the reporter task serializing
@@ -184,7 +186,7 @@ public struct TrapConfig : Codable {
     public init() {
         queueSize = 2048
         lowBatteryThreshold = 0.1
-        
+
         reporter = Reporter()
         defaultDataCollection = DataCollection()
         lowBatteryDataCollection = DataCollection()
@@ -198,7 +200,7 @@ public struct TrapConfig : Codable {
         if #available(iOS 13.4, *) {
             lowBatteryDataCollection.collectors.append(String(reflecting: TrapPointerCollector.self))
         }
-     
+
         lowBatteryDataCollection.collectCoalescedPointerEvents = false
         lowBatteryDataCollection.collectCoalescedStylusEvents = false
         lowBatteryDataCollection.collectCoalescedTouchEvents = false
@@ -218,7 +220,7 @@ public struct TrapConfig : Codable {
         lowDataDataCollection.collectCoalescedStylusEvents = false
         lowDataDataCollection.collectCoalescedTouchEvents = false
     }
-    
+
     public static func loadConfigFromUrl(_ url: URL, completion: @escaping ((TrapConfig?) -> Void)) {
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let data = data {
@@ -226,5 +228,13 @@ public struct TrapConfig : Codable {
                 completion(res)
             }
         }.resume()
+    }
+
+    public func isDataCollectionDisabled() -> Bool {
+        if let filter = sessionIdFilter {
+            return reporter.sessionId.uuidString > filter
+        } else {
+            return false
+        }
     }
 }

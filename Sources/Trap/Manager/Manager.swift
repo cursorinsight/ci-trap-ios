@@ -80,6 +80,8 @@ public class TrapManager {
     /// Adds a collector instance to the platform and
     /// starts it immediately.
     public func run(collector: TrapDatasource) throws {
+        guard !config.isDataCollectionDisabled() else { return }
+
         let key = String(reflecting: type(of: collector))
         if (collectors.index(forKey: key) == nil) {
             var target = collector
@@ -100,12 +102,13 @@ public class TrapManager {
 
     /// Try to run all possible collectors
     public func runAll() throws {
+        guard !config.isDataCollectionDisabled() else { return }
+
         subscribeOnNotifications()
         addStartMessage()
         try reporter.start()
 
         currentDataCollectionConfig = getDataCollectionConfig()
-
         currentDataCollectionConfig.collectors.forEach {
             if (collectors.index(forKey: $0) == nil) {
                 createCollector($0)
