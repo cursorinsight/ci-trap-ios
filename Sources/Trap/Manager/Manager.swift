@@ -5,7 +5,7 @@ let startEventType = 130
 
 let stopEventType = 131
 
-let customEventType = 131
+let customEventType = 133
 
 /// The central place to manage the data collection integration.
 /// Supports permission and configuration checks needed for
