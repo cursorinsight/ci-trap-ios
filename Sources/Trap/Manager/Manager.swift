@@ -261,7 +261,7 @@ public class TrapManager {
             UIDevice.current.batteryLevel >= 0    }
     
     private func maybeModifyConfigAndRestartCollection() {
-        if (!isRunning || getDataCollectionConfig() != currentDataCollectionConfig) {
+        if (!isRunning || !(getDataCollectionConfig() != currentDataCollectionConfig)) {
             haltAll()
             do {
                 try runAll()
