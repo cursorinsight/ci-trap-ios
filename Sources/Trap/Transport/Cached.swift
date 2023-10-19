@@ -25,33 +25,34 @@ class TrapCachedTransport: TrapTransport {
         underlying.stop()
     }
 
-    func send(data: String, completionHandler handler: @escaping (Error?) -> Void) {
+    func send(data: String, avoidSendingTooMuchData: Bool, completionHandler handler: @escaping (Error?) -> Void) {
         do {
-            let cached = try cache?.getAll() ?? []
-            if !cached.isEmpty {
-                let message = try cached.map {
-                    let content = try $0.content()
-                    let startIndex = content.index(content.startIndex, offsetBy: 1)
-                    let endIndex = content.index(content.endIndex, offsetBy: -2)
-                    return String(content[startIndex..<endIndex])
-                }.joined(separator: ",")
-                underlying.send(data: "["+message+"]") { error in
-                    if error != nil {
-                        handler(error)
-                    } else {
-                        do {
-                            try cached.forEach { try $0.delete() }
-                        } catch {}
+            let group = DispatchGroup()
+            if !avoidSendingTooMuchData {
+                let cached = try cache?.getAll() ?? []
+                if !cached.isEmpty {
+                    try? cached.forEach { cacheItem in
+                        group.enter()
+                        let content = try cacheItem.content()
+                        underlying.send(data: content, avoidSendingTooMuchData: avoidSendingTooMuchData) { error in
+                            if error == nil {
+                                do {
+                                    try cacheItem.delete()
+                                } catch {}
+                            }
+                            group.leave()
+                        }
                     }
                 }
             }
-
-            underlying.send(data: data) { error in
+            
+            group.enter()
+            underlying.send(data: data, avoidSendingTooMuchData: avoidSendingTooMuchData) { error in
                 if error != nil {
                     try? self.cache?.push(data: data)
-                } else {
-                    handler(nil)
                 }
+                group.leave()
+                handler(nil)
             }
         } catch {
             handler(error)

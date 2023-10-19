@@ -184,7 +184,7 @@ public struct TrapConfig : Codable {
 
     /// Create a default configuration instance ready to be used.
     public init() {
-        queueSize = 2048
+        queueSize = 8192
         lowBatteryThreshold = 0.1
 
         reporter = Reporter()
