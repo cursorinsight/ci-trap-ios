@@ -14,7 +14,7 @@ class TrapHttpTransport: TrapTransport {
 
     func stop() {}
 
-    func send(data: String, avoidSendingTooMuchData :Bool, completionHandler: @escaping (Error?) -> Void) {
+    func send(data: String, avoidSendingTooMuchData :Bool = false, completionHandler: @escaping (Error?) -> Void) {
         var request = URLRequest(url: self.url)
         request.httpMethod = "POST"
         let contentTypePostfix = config.compressed ? "+zlib" : ""

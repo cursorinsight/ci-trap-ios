@@ -10,8 +10,8 @@ class CachedTests: XCTestCase {
     
     func testCached() {
         let sendCalled1 = expectation(description: "Send is called")
+        sendCalled1.expectedFulfillmentCount = 2
         let sendCalled2 = expectation(description: "Send is called")
-        let sendCalled3 = expectation(description: "Send is called")
         let startCalled = expectation(description: "Start is called")
         let stopCalled = expectation(description: "Stop is called")
         let mock = MockTransport()
@@ -19,11 +19,8 @@ class CachedTests: XCTestCase {
             if data == "[[999], ]" {
                 sendCalled1.fulfill()
             }
-            if data == "[[999],]" {
-                sendCalled2.fulfill()
-            }
             if data == "[[888], ]" {
-                sendCalled3.fulfill()
+                sendCalled2.fulfill()
             }
         }
         mock.startCalled = { startCalled.fulfill() }
@@ -40,7 +37,7 @@ class CachedTests: XCTestCase {
             XCTAssertNil(error)
         }
         
-        wait(for: [startCalled, sendCalled1, sendCalled2, sendCalled3], timeout: 1)
+        wait(for: [startCalled, sendCalled1, sendCalled2], timeout: 1)
         transport.stop()
         wait(for: [stopCalled], timeout: 1)
     }

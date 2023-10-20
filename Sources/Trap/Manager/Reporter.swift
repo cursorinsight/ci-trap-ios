@@ -49,7 +49,7 @@ class TrapReporter {
     }
 
     /// Starts the reporting task.
-    func start(avoidSendingTooMuchData: Bool) throws {
+    func start(avoidSendingTooMuchData: Bool = false) throws {
         guard reporterTask == nil else { return }
 
         streamId = UUID()

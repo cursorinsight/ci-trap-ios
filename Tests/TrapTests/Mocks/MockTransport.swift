@@ -17,7 +17,7 @@ class MockTransport: TrapTransport {
         stopCalled?()
     }
     
-    func send(data: String, completionHandler: @escaping (Error?) -> Void) {
+    func send(data: String, avoidSendingTooMuchData: Bool = false, completionHandler: @escaping (Error?) -> Void) {
         sendCalled?(data)
         if error {
             completionHandler(MockTransportError.general)

@@ -25,7 +25,7 @@ class TrapCachedTransport: TrapTransport {
         underlying.stop()
     }
 
-    func send(data: String, avoidSendingTooMuchData: Bool, completionHandler handler: @escaping (Error?) -> Void) {
+    func send(data: String, avoidSendingTooMuchData: Bool = false, completionHandler handler: @escaping (Error?) -> Void) {
         do {
             let semaphore = DispatchSemaphore(value: 1)
             if !avoidSendingTooMuchData {
@@ -52,7 +52,7 @@ class TrapCachedTransport: TrapTransport {
                     try? self.cache?.push(data: data)
                 }
                 semaphore.signal()
-                handler(nil)
+                handler(error)
             }
         } catch {
             handler(error)

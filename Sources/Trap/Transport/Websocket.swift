@@ -128,7 +128,7 @@ class TrapWSKeepaliveForegroundTransport: TrapWebsocketForegroundOnlyTransport {
         super.stop()
     }
 
-    override func send(data: String, avoidSendingTooMuchData: Bool, completionHandler: @escaping (Error?) -> Void) {
+    override func send(data: String, avoidSendingTooMuchData: Bool = false, completionHandler: @escaping (Error?) -> Void) {
         latestSend = Date()
         super.send(data: data, avoidSendingTooMuchData: avoidSendingTooMuchData) { error in
             if error != nil {
