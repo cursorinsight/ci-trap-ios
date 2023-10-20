@@ -49,7 +49,7 @@ class TrapReporter {
     }
 
     /// Starts the reporting task.
-    func start() throws {
+    func start(avoidSendingTooMuchData: Bool = false) throws {
         guard reporterTask == nil else { return }
 
         streamId = UUID()
@@ -90,7 +90,9 @@ class TrapReporter {
                 assertionFailure("Manager reporter task becomes empty while running")
                 return
             }
-
+            let group = DispatchGroup()
+            group.enter()
+            
             let data = this.storage
                 .sorted { $0.0 < $1.0 }
                 .map(\.1)
@@ -108,11 +110,16 @@ class TrapReporter {
                 encoded
             ].joined(separator: ",\n")
 
-            this.transport?.send(data: "[\n" + packet + "\n]") { error in
+            this.transport?.send(
+                data: "[\n" + packet + "\n]",
+                avoidSendingTooMuchData: avoidSendingTooMuchData
+            ) { error in
+                group.leave()
                 if let _ = error {
                     debugPrint("Failed to send or cache packet")
                 }
             }
+            group.wait()
         }
     }
 

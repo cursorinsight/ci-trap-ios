@@ -5,7 +5,7 @@ let startEventType = 130
 
 let stopEventType = 131
 
-let customEventType = 131
+let customEventType = 133
 
 /// The central place to manage the data collection integration.
 /// Supports permission and configuration checks needed for
@@ -34,14 +34,18 @@ public class TrapManager {
     private var networkMonitor: NWPathMonitor?
 
     /// Is in low data mode
-    private var inLowDataMode: Bool = false
+    private var inLowDataMode: Bool? = nil
 
     /// Has low battery
     private var hasLowBattery: Bool = false
 
+    private var isRunning: Bool = false
+    
     // Currently used data collection config
     private var currentDataCollectionConfig : TrapConfig.DataCollection
 
+    private var collectorChangeSemaphore : DispatchSemaphore  = DispatchSemaphore(value: 1)
+    
     /// Create an instance of the integration module,
     /// optionally with your configuration
     public init(
@@ -50,7 +54,7 @@ public class TrapManager {
         withCollectorQueue collectorQueue: OperationQueue? = nil
     ) throws {
         self.config = config ?? TrapConfig()
-        self.currentDataCollectionConfig = config?.defaultDataCollection ?? TrapConfig().defaultDataCollection
+        self.currentDataCollectionConfig = self.config.defaultDataCollection
         self.collectorQueue = collectorQueue ?? OperationQueue()
         self.collectorQueue.name = "Trap - Collector"
 
@@ -84,11 +88,9 @@ public class TrapManager {
 
         let key = String(reflecting: type(of: collector))
         if (collectors.index(forKey: key) == nil) {
-            var target = collector
-            target.delegate = storage
-            target.start(withConfig: currentDataCollectionConfig)
-            collectors[key] = target
-            try reporter.start()
+            createCollector(key)
+            collectors[key]?.start(withConfig: currentDataCollectionConfig)
+            try reporter.start(avoidSendingTooMuchData: inLowDataMode ?? false)
         }
     }
 
@@ -103,39 +105,51 @@ public class TrapManager {
     /// Try to run all possible collectors
     public func runAll() throws {
         guard !config.isDataCollectionDisabled() else { return }
-
-        subscribeOnNotifications()
-        addStartMessage()
-        try reporter.start()
-
+        collectorChangeSemaphore.wait()
+        self.hasLowBattery = getHasLowBattery()
         currentDataCollectionConfig = getDataCollectionConfig()
-        currentDataCollectionConfig.collectors.forEach {
-            if (collectors.index(forKey: $0) == nil) {
-                createCollector($0)
-            }
-            if let collector = collectors[$0] {
-                if collector.checkConfiguration(), collector.checkPermission() {
-                    collector.start(withConfig: currentDataCollectionConfig)
+        subscribeOnNotifications()
+        if !isRunning {
+            if let actualDataMode = inLowDataMode {
+                isRunning = true
+                addStartMessage()
+                try reporter.start(avoidSendingTooMuchData: actualDataMode)
+                currentDataCollectionConfig.collectors.forEach {
+                    if (collectors.index(forKey: $0) == nil) {
+                        createCollector($0)
+                    }
+                    if let collector = collectors[$0] {
+                        if collector.checkConfiguration(), collector.checkPermission() {
+                            collector.start(withConfig: currentDataCollectionConfig)
+                        }
+                    }
                 }
             }
         }
+        collectorChangeSemaphore.signal()
     }
 
     /// Creates a collector
     private func createCollector(_ key: String) {
         if let collectorType = (NSClassFromString(key) as? TrapDatasource.Type) {
-            let collector = collectorType.instance(withQueue: collectorQueue) as TrapDatasource
+            var collector = collectorType.instance(withQueue: collectorQueue) as TrapDatasource
+            collector.delegate = storage
             collectors[key] = collector
         }
     }
 
     /// Turn off all collectors.
     public func haltAll() {
-        collectors.values.forEach {
-            halt(collector: $0)
+        collectorChangeSemaphore.wait()
+        if (isRunning) {
+           isRunning = false
+            collectors.values.forEach {
+                halt(collector: $0)
+            }
+            addStopMessage()
         }
-        addStopMessage()
         unsubscribeFromNotifications()
+        collectorChangeSemaphore.signal()
     }
 
     private func unsubscribeFromNotifications() {
@@ -218,7 +232,7 @@ public class TrapManager {
         storage.save(sequence: timestamp, data: DataType.array([
             DataType.int(startEventType),
             DataType.int64(timestamp),
-            DataType.bool(inLowDataMode),
+            DataType.bool(inLowDataMode ?? false),
             DataType.bool(hasLowBattery)
         ]))
     }
@@ -233,24 +247,32 @@ public class TrapManager {
     }
 
     private func networkChanged(path: NWPath){
-        self.inLowDataMode = path.isConstrained || path.isExpensive
-        maybeModifyConfigAndRestartCollection()
+        let newValue = path.usesInterfaceType(.cellular) || path.isExpensive
+        if newValue != self.inLowDataMode {
+            self.inLowDataMode = newValue
+            maybeModifyConfigAndRestartCollection()
+        }
     }
 
     @objc func batteryDidChange(_ notification: Notification) {
-        self.hasLowBattery =
-            (UIDevice.current.batteryState == .unplugged || UIDevice.current.batteryState == .unknown) &&
-            UIDevice.current.batteryLevel < config.lowBatteryThreshold &&
-            UIDevice.current.batteryLevel >= 0
-        maybeModifyConfigAndRestartCollection()
-
+        let newValue = getHasLowBattery()
+        
+        if newValue != self.hasLowBattery {
+            maybeModifyConfigAndRestartCollection()
+        }
         let batteryCollectorKey = String(reflecting: TrapBatteryCollector.self)
         guard let batteryCollector = (collectors[batteryCollectorKey] as? TrapBatteryCollector) else { return }
         batteryCollector.sendBatteryEvent()
     }
 
+    private func getHasLowBattery() -> Bool {
+        return (UIDevice.current.batteryState == .unplugged || UIDevice.current.batteryState == .unknown) &&
+            UIDevice.current.batteryLevel < config.lowBatteryThreshold &&
+            UIDevice.current.batteryLevel >= 0   
+    }
+    
     private func maybeModifyConfigAndRestartCollection() {
-        if (getDataCollectionConfig() != currentDataCollectionConfig) {
+        if (!isRunning || !(getDataCollectionConfig() != currentDataCollectionConfig)) {
             haltAll()
             do {
                 try runAll()
@@ -261,7 +283,7 @@ public class TrapManager {
     }
 
     private func getDataCollectionConfig() -> TrapConfig.DataCollection {
-        if (inLowDataMode) {
+        if (inLowDataMode ?? false) {
             return config.lowDataDataCollection
         }
         if (hasLowBattery) {

@@ -14,7 +14,7 @@ class TrapHttpTransport: TrapTransport {
 
     func stop() {}
 
-    func send(data: String, completionHandler: @escaping (Error?) -> Void) {
+    func send(data: String, avoidSendingTooMuchData :Bool = false, completionHandler: @escaping (Error?) -> Void) {
         var request = URLRequest(url: self.url)
         request.httpMethod = "POST"
         let contentTypePostfix = config.compressed ? "+zlib" : ""
@@ -25,16 +25,15 @@ class TrapHttpTransport: TrapTransport {
             config.apiKeyValue,
             forHTTPHeaderField: config.apiKeyName)
 
-        var data = data.data(using: .utf8)
+        var binaryData = data.data(using: .utf8)
         if config.compressed {
-            if let uncompressedData = data {
-                data = try! NSData(data: uncompressedData).compressed(using: .zlib) as Data
-            }
+            binaryData = binaryData?.zip()
         }
-        request.httpBody = data
+        request.httpBody = binaryData
 
         URLSession.shared.dataTask(with: request) { _, _, error in
             completionHandler(error)
         }.resume()
     }
 }
+	

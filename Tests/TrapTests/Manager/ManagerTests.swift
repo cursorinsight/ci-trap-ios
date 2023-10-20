@@ -20,14 +20,14 @@ class ManagerTests: XCTestCase {
     func testRunAll() throws {
         let startCalled = expectation(description: "Start called")
         let stopCalled = expectation(description: "Stop called")
-        MockCollector.startCalled = { startCalled.fulfill() }
+        MockCollector.startCalled = { startCalled.fulfill()}
         MockCollector.stopCalled = { stopCalled.fulfill() }
         var config = TrapConfig()
         config.defaultDataCollection.collectors = [String(reflecting: MockCollector.self)]
         var manager: TrapManager? = try TrapManager(withConfig: config, withReporterQueue: nil, withCollectorQueue: nil)
         try manager?.runAll()
+        wait(for: [startCalled], timeout: 5)
         manager?.haltAll()
-
-        wait(for: [startCalled, stopCalled], timeout: 1)
+        wait(for: [stopCalled], timeout: 1)
     }
 }
