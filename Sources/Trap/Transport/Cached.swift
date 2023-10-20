@@ -27,12 +27,12 @@ class TrapCachedTransport: TrapTransport {
 
     func send(data: String, avoidSendingTooMuchData: Bool, completionHandler handler: @escaping (Error?) -> Void) {
         do {
-            let group = DispatchGroup()
+            let semaphore = DispatchSemaphore(value: 1)
             if !avoidSendingTooMuchData {
                 let cached = try cache?.getAll() ?? []
                 if !cached.isEmpty {
                     try? cached.forEach { cacheItem in
-                        group.enter()
+                        semaphore.wait()
                         let content = try cacheItem.content()
                         underlying.send(data: content, avoidSendingTooMuchData: avoidSendingTooMuchData) { error in
                             if error == nil {
@@ -40,18 +40,18 @@ class TrapCachedTransport: TrapTransport {
                                     try cacheItem.delete()
                                 } catch {}
                             }
-                            group.leave()
+                            semaphore.signal()
                         }
                     }
                 }
             }
             
-            group.enter()
+            semaphore.wait()
             underlying.send(data: data, avoidSendingTooMuchData: avoidSendingTooMuchData) { error in
                 if error != nil {
                     try? self.cache?.push(data: data)
                 }
-                group.leave()
+                semaphore.signal()
                 handler(nil)
             }
         } catch {

@@ -44,6 +44,8 @@ public class TrapManager {
     // Currently used data collection config
     private var currentDataCollectionConfig : TrapConfig.DataCollection
 
+    private var collectorChangeSemaphore : DispatchSemaphore  = DispatchSemaphore(value: 1)
+    
     /// Create an instance of the integration module,
     /// optionally with your configuration
     public init(
@@ -103,26 +105,28 @@ public class TrapManager {
     /// Try to run all possible collectors
     public func runAll() throws {
         guard !config.isDataCollectionDisabled() else { return }
-
+        collectorChangeSemaphore.wait()
+        self.hasLowBattery = getHasLowBattery()
+        currentDataCollectionConfig = getDataCollectionConfig()
         subscribeOnNotifications()
-        if let actualDataMode = inLowDataMode {
-            isRunning = true
-            setHasLowBattery()
-            addStartMessage()
-            try reporter.start(avoidSendingTooMuchData: actualDataMode)
-            
-            currentDataCollectionConfig = getDataCollectionConfig()
-            currentDataCollectionConfig.collectors.forEach {
-                if (collectors.index(forKey: $0) == nil) {
-                    createCollector($0)
-                }
-                if let collector = collectors[$0] {
-                    if collector.checkConfiguration(), collector.checkPermission() {
-                        collector.start(withConfig: currentDataCollectionConfig)
+        if !isRunning {
+            if let actualDataMode = inLowDataMode {
+                isRunning = true
+                addStartMessage()
+                try reporter.start(avoidSendingTooMuchData: actualDataMode)
+                currentDataCollectionConfig.collectors.forEach {
+                    if (collectors.index(forKey: $0) == nil) {
+                        createCollector($0)
+                    }
+                    if let collector = collectors[$0] {
+                        if collector.checkConfiguration(), collector.checkPermission() {
+                            collector.start(withConfig: currentDataCollectionConfig)
+                        }
                     }
                 }
             }
         }
+        collectorChangeSemaphore.signal()
     }
 
     /// Creates a collector
@@ -136,14 +140,16 @@ public class TrapManager {
 
     /// Turn off all collectors.
     public func haltAll() {
+        collectorChangeSemaphore.wait()
         if (isRunning) {
-            isRunning = false
+           isRunning = false
             collectors.values.forEach {
                 halt(collector: $0)
             }
             addStopMessage()
         }
         unsubscribeFromNotifications()
+        collectorChangeSemaphore.signal()
     }
 
     private func unsubscribeFromNotifications() {
@@ -241,24 +247,29 @@ public class TrapManager {
     }
 
     private func networkChanged(path: NWPath){
-        self.inLowDataMode = path.isConstrained || path.isExpensive
-        maybeModifyConfigAndRestartCollection()
+        let newValue = path.usesInterfaceType(.cellular) || path.isExpensive
+        if newValue != self.inLowDataMode {
+            self.inLowDataMode = newValue
+            maybeModifyConfigAndRestartCollection()
+        }
     }
 
     @objc func batteryDidChange(_ notification: Notification) {
-        setHasLowBattery()
-        maybeModifyConfigAndRestartCollection()
-
+        let newValue = getHasLowBattery()
+        
+        if newValue != self.hasLowBattery {
+            maybeModifyConfigAndRestartCollection()
+        }
         let batteryCollectorKey = String(reflecting: TrapBatteryCollector.self)
         guard let batteryCollector = (collectors[batteryCollectorKey] as? TrapBatteryCollector) else { return }
         batteryCollector.sendBatteryEvent()
     }
 
-    private func setHasLowBattery() {
-        self.hasLowBattery =
-            (UIDevice.current.batteryState == .unplugged || UIDevice.current.batteryState == .unknown) &&
+    private func getHasLowBattery() -> Bool {
+        return (UIDevice.current.batteryState == .unplugged || UIDevice.current.batteryState == .unknown) &&
             UIDevice.current.batteryLevel < config.lowBatteryThreshold &&
-            UIDevice.current.batteryLevel >= 0    }
+            UIDevice.current.batteryLevel >= 0   
+    }
     
     private func maybeModifyConfigAndRestartCollection() {
         if (!isRunning || !(getDataCollectionConfig() != currentDataCollectionConfig)) {
