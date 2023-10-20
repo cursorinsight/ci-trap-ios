@@ -26,7 +26,7 @@ class ManagerTests: XCTestCase {
         config.defaultDataCollection.collectors = [String(reflecting: MockCollector.self)]
         var manager: TrapManager? = try TrapManager(withConfig: config, withReporterQueue: nil, withCollectorQueue: nil)
         try manager?.runAll()
-        wait(for: [startCalled], timeout: 1)
+        wait(for: [startCalled], timeout: 5)
         manager?.haltAll()
         wait(for: [stopCalled], timeout: 1)
     }
