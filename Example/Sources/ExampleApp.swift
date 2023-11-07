@@ -26,6 +26,14 @@ struct ExampleApp: App {
 
         trapManager = TrapManager(withConfig: config)
 
+        trapManager.addCustomMetadata(
+            key: "uid",
+            value: DataType.dict([
+                "type": DataType.string("text"),
+                "value": DataType.string("uid-text")
+            ])
+        )
+
         trapManager.addCustomMetadata(key: "some-key", value: "some-value")
 
         trapManager.addCustomEvent(custom: DataType.dict([
@@ -33,7 +41,7 @@ struct ExampleApp: App {
             "numeric-data-key": DataType.int(2),
             "boolean-data-key": DataType.bool(false)
         ]))
-        
+
         // Run all default collectors...
         try? trapManager.runAll()
 
