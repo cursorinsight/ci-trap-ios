@@ -44,7 +44,7 @@ struct ExampleApp: App {
         /// ...or a HTTP POST endpont.
         config.reporter.url = "https://example.com/api/post"
 
-        trapManager = try! TrapManager(withConfig: config)
+        trapManager = TrapManager(withConfig: config)
 
         // Run all default collectors...
         trapManager.runAll()
