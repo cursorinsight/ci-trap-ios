@@ -24,7 +24,7 @@ struct ExampleApp: App {
         /// ...or use a (secure) WebSocket endpoint
         config.reporter.url = "wss://example.com/api/ws/{sessionId}/{streamId}"
 
-        trapManager = try! TrapManager(withConfig: config)
+        trapManager = TrapManager(withConfig: config)
 
         trapManager.addCustomMetadata(key: "some-key", value: "some-value")
 

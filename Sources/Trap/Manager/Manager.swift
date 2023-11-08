@@ -52,7 +52,7 @@ public class TrapManager {
         withConfig config: TrapConfig? = nil,
         withReporterQueue reporterQueue: OperationQueue? = nil,
         withCollectorQueue collectorQueue: OperationQueue? = nil
-    ) throws {
+    ) {
         self.config = config ?? TrapConfig()
         self.currentDataCollectionConfig = self.config.defaultDataCollection
         self.collectorQueue = collectorQueue ?? OperationQueue()
