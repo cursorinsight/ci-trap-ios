@@ -12,7 +12,7 @@ public class TrapMetadataCollector: TrapDatasource {
 
     private var reporterTask: Cancellable?
 
-    private var customMap: [String : String] = [:]
+    private var customMap: [String : DataType] = [:]
 
     public init(withQueue queue: OperationQueue) {
         self.queue = queue
@@ -51,7 +51,7 @@ public class TrapMetadataCollector: TrapDatasource {
         TrapMetadataCollector(withQueue: queue)
     }
 
-    public func addCustom(key: String, value: String) {
+    public func addCustom(key: String, value: DataType) {
         customMap[key] = value
         sendMetadataEvent()
     }
@@ -76,9 +76,7 @@ public class TrapMetadataCollector: TrapDatasource {
     }
 
     private func customData() -> DataType {
-        return DataType.dict(customMap.mapValues{ value in
-            return DataType.string(value)
-        })
+        return DataType.dict(customMap)
     }
 
     private func hardwareData() -> DataType {

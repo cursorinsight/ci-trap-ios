@@ -205,12 +205,16 @@ public class TrapManager {
             object: nil)
     }
 
-    public func addCustomMetadata(key: String, value: String) {
+    public func addCustomMetadata(key: String, value: DataType) {
         let metaCollectorKey = String(reflecting: TrapMetadataCollector.self)
         guard let metadataCollector = (collectors[metaCollectorKey] as? TrapMetadataCollector) else { return }
         metadataCollector.addCustom(key: key, value: value)
     }
 
+    public func addCustomMetadata(key: String, value: String) {
+        addCustomMetadata(key: key, value: DataType.string(value))
+    }
+    
     public func removeCustomMetadata(key: String) {
         let metaCollectorKey = String(reflecting: TrapMetadataCollector.self)
         guard let metadataCollector = (collectors[metaCollectorKey] as? TrapMetadataCollector) else { return }
