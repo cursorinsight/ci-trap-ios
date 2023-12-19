@@ -81,17 +81,15 @@ open class TrapGestureCollector {
         self.config = config
         if (config.useGestureRecognizer) {
             subscribeForGestureRecognizer()
-        } else {
-            addRecognizersToDispatcher()
         }
+        addRecognizersToDispatcher()
     }
 
     public func stop() {
         if (config?.useGestureRecognizer ?? true) {
             unsubscribeFromGestureRecognizer()
-        } else {
-            removeRecognizersFromDispatcher()
         }
+        removeRecognizersFromDispatcher()
     }
 
     private func addRecognizersToDispatcher() {

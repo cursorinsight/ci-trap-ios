@@ -1,5 +1,5 @@
 import UIKit
-let batteryEventType = 132
+let batteryEventType = 133
 
 public class TrapBatteryCollector: NSObject, TrapDatasource {
     public var delegate: TrapDatasourceDelegate?

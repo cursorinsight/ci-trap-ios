@@ -206,7 +206,6 @@ public class TouchRecognizer: UIGestureRecognizer, UIGestureRecognizerDelegate {
     /// This is needed to avoid stealing events from UIKit controls
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         guard touch.view is UIControl else { return true }
-        touchesBegan(Set([touch]), with: nil)
         return false
     }
 }
