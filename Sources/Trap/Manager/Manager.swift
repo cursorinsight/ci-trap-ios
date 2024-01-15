@@ -40,12 +40,12 @@ public class TrapManager {
     private var hasLowBattery: Bool = false
 
     private var isRunning: Bool = false
-    
+
     // Currently used data collection config
     private var currentDataCollectionConfig : TrapConfig.DataCollection
 
     private var collectorChangeSemaphore : DispatchSemaphore  = DispatchSemaphore(value: 1)
-    
+
     /// Create an instance of the integration module,
     /// optionally with your configuration
     public init(
@@ -108,7 +108,12 @@ public class TrapManager {
         collectorChangeSemaphore.wait()
         self.hasLowBattery = getHasLowBattery()
         currentDataCollectionConfig = getDataCollectionConfig()
+        try startReportersAndCollectors()
+        collectorChangeSemaphore.signal()
         subscribeOnNotifications()
+    }
+
+    private func startReportersAndCollectors() throws {
         if !isRunning {
             if let actualDataMode = inLowDataMode {
                 isRunning = true
@@ -126,7 +131,6 @@ public class TrapManager {
                 }
             }
         }
-        collectorChangeSemaphore.signal()
     }
 
     /// Creates a collector
@@ -141,6 +145,12 @@ public class TrapManager {
     /// Turn off all collectors.
     public func haltAll() {
         collectorChangeSemaphore.wait()
+        stopReporterAndCollectors()
+        collectorChangeSemaphore.signal()
+        unsubscribeFromNotifications()
+    }
+
+    private func stopReporterAndCollectors() {
         if (isRunning) {
            isRunning = false
             collectors.values.forEach {
@@ -148,8 +158,6 @@ public class TrapManager {
             }
             addStopMessage()
         }
-        unsubscribeFromNotifications()
-        collectorChangeSemaphore.signal()
     }
 
     private func unsubscribeFromNotifications() {
@@ -214,7 +222,7 @@ public class TrapManager {
     public func addCustomMetadata(key: String, value: String) {
         addCustomMetadata(key: key, value: DataType.string(value))
     }
-    
+
     public func removeCustomMetadata(key: String) {
         let metaCollectorKey = String(reflecting: TrapMetadataCollector.self)
         guard let metadataCollector = (collectors[metaCollectorKey] as? TrapMetadataCollector) else { return }
@@ -251,17 +259,24 @@ public class TrapManager {
     }
 
     private func networkChanged(path: NWPath){
-        let newValue = path.usesInterfaceType(.cellular) || path.isExpensive
-        if newValue != self.inLowDataMode {
-            self.inLowDataMode = newValue
-            maybeModifyConfigAndRestartCollection()
+        if let monitor = networkMonitor {
+            let newValue =
+              monitor.currentPath.status != .satisfied ||
+              monitor.currentPath.isExpensive ||
+              monitor.currentPath.isConstrained
+
+            if newValue != self.inLowDataMode {
+                self.inLowDataMode = newValue
+                maybeModifyConfigAndRestartCollection()
+            }
         }
     }
 
     @objc func batteryDidChange(_ notification: Notification) {
         let newValue = getHasLowBattery()
-        
+
         if newValue != self.hasLowBattery {
+            self.hasLowBattery = newValue
             maybeModifyConfigAndRestartCollection()
         }
         let batteryCollectorKey = String(reflecting: TrapBatteryCollector.self)
@@ -272,18 +287,19 @@ public class TrapManager {
     private func getHasLowBattery() -> Bool {
         return (UIDevice.current.batteryState == .unplugged || UIDevice.current.batteryState == .unknown) &&
             UIDevice.current.batteryLevel < config.lowBatteryThreshold &&
-            UIDevice.current.batteryLevel >= 0   
+            UIDevice.current.batteryLevel >= 0
     }
-    
+
     private func maybeModifyConfigAndRestartCollection() {
-        if (!isRunning || !(getDataCollectionConfig() != currentDataCollectionConfig)) {
-            haltAll()
-            do {
-                try runAll()
-            } catch {
-                print("Could not restart collectors")
-            }
+        collectorChangeSemaphore.wait()
+        stopReporterAndCollectors()
+        currentDataCollectionConfig = getDataCollectionConfig()
+        do {
+            try startReportersAndCollectors()
+        } catch {
+            print("Could not restart collectors")
         }
+        collectorChangeSemaphore.signal()
     }
 
     private func getDataCollectionConfig() -> TrapConfig.DataCollection {
