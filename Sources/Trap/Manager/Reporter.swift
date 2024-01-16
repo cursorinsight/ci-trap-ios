@@ -139,7 +139,8 @@ class TrapReporter {
             DataType.string(config.reporter.sessionId.uuidString),
             DataType.string(streamId.uuidString),
             DataType.int(sequenceId),
-            DataType.dict(["version": DataType.string("20230706T094422Z")])
+            DataType.dict(["version": DataType.string("20230706T094422Z")]),
+            DataType.string(Constants.App.version)
         ])
 
         sequenceId += 1
