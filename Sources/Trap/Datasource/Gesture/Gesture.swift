@@ -134,9 +134,19 @@ open class TrapGestureCollector {
         }
 
         // Finally, add a recognizer to all current windows
-        for window in UIApplication.shared.windows {
-            if !recognizers.keys.contains(window.hash) {
-                addRecognizers(to: window)
+        let addRecognizers = {
+            for window in UIApplication.shared.windows {
+                if !self.recognizers.keys.contains(window.hash) {
+                    self.addRecognizers(to: window)
+                }
+            }
+        }
+        
+        if Thread.isMainThread {
+            addRecognizers()
+        } else {
+            DispatchQueue.main.async {
+                addRecognizers()
             }
         }
     }
@@ -152,8 +162,17 @@ open class TrapGestureCollector {
         }
 
         // Finally remove all the active recognizers
-        for window in UIApplication.shared.windows {
-            removeRecognizers(from: window)
+        let removeRecognizers = {
+            for window in UIApplication.shared.windows {
+                self.removeRecognizers(from: window)
+            }
+        }
+        if Thread.isMainThread {
+            removeRecognizers()
+        } else {
+            DispatchQueue.main.sync {
+                removeRecognizers()
+            }
         }
     }
 
