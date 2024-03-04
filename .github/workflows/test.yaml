@@ -39,6 +39,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@master
+      - name: Select
+        run: sudo xcode-select -switch /Applications/XCode_14.3.1.app
       - name: Build and test
         run: |
           xcodebuild test \
