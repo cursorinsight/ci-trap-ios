@@ -1,5 +1,5 @@
 struct Constants {
-    struct App {
+    struct Trap {
         static let version = "1.1.4"
     }
 }
