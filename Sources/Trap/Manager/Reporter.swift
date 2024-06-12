@@ -26,6 +26,9 @@ class TrapReporter {
     /// The endpoint of the reporter to use
     private let config: TrapConfig
 
+    /// Application version (for the embedding application)
+    private let appVersion: String
+
     /// The streamId of this continuous data stream.
     private var streamId = UUID()
 
@@ -42,6 +45,7 @@ class TrapReporter {
         self.storage = storage
         self.config = config
         self.transport = nil
+        self.appVersion = Bundle.main.appVersion
     }
 
     deinit {
@@ -92,7 +96,7 @@ class TrapReporter {
             }
             let group = DispatchGroup()
             group.enter()
-            
+
             let data = this.storage
                 .sorted { $0.0 < $1.0 }
                 .map(\.1)
@@ -140,11 +144,24 @@ class TrapReporter {
             DataType.string(streamId.uuidString),
             DataType.int(sequenceId),
             DataType.dict(["version": DataType.string("20230706T094422Z")]),
-            DataType.string(Constants.App.version)
+            DataType.string(Constants.Trap.version),
+            DataType.string(appVersion)
         ])
 
         sequenceId += 1
 
         return header
+    }
+}
+
+extension Bundle {
+    /// Gets the application version
+    var appVersion: String {
+        if let infoDictionary = Bundle.main.infoDictionary,
+            let name = infoDictionary["CFBundleName"],
+            let version = infoDictionary["CFBundleVersion"] {
+            return "\(name) (\(version))"
+        }
+        return "Unknown"
     }
 }
